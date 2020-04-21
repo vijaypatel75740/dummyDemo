@@ -1,10 +1,5 @@
 var mysql  = require('mysql');
 
-
-
-
-
-
 //- Connection configuration
 var db_config = {
   host     : 'remotemysql.com',
