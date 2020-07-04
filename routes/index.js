@@ -8,7 +8,7 @@ let request = require("request");
 var config = require('../config/global');
 var connection = require('../config/connection');
 const BitlyClient = require('bitly').BitlyClient;
-const bitly = new BitlyClient('6050528e1d5594c2b447fe6b403f047c5f8e5dd6');
+const bitly = new BitlyClient('aa1072d88fa39d4b82cd815964f6af5f7e204b20');
 var tall = require('tall').default;
 const axios = require('axios');
 var textVersion = require("textversionjs");
@@ -574,11 +574,228 @@ router.post('/api/automation_posts', function (req, res, next) {
                 console.log('err: ', err);
               }
               let ListflagData = flagData[0];
+              let final =[];
+              let array = req.body.convertText.split("\n");
+               for (let j = 0; j < array.length; j++) {
+                      if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
+                        let xzhxzh;
+                          if(array[j].match(/amazon.in/g)){
+                           xzhxzh = array[j].replace(/[[\]]/g,'').replace(/ /g, '@')
+                          }else{
+                          xzhxzh = array[j]
+                          }
+                        let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
+                        console.log('urls: ', urls);
+                           tall(urls[0], {
+                            method: 'HEAD',
+                            maxRedirect: 5
+                    }).then(function(unshortenedUrls){ 
+                      let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+                      console.log('unshortenedUrlsssssss: ', unshortenedUrl);
+                    if(unshortenedUrl.match(/amazon.in/g)){
+                      let tagnot;
+                      if(unshortenedUrl.match(/earnkaro/g)){
+                        let finalLink =unshortenedUrl.split('dl=');
+                         if(urlencode(finalLink[1]).match(/[?]/g)){
+                          tagnot= urlencode(finalLink[1]).concat('&tag='+req.body.postTagId);
+                        }else{
+                          tagnot= urlencode(finalLink[1]).concat('?tag='+req.body.postTagId);
+                        }
+                      }else if(unshortenedUrl.match(/paisawapas/g)){
+                          let finalLink =unshortenedUrl.split('url=');
+                           if(urlencode(finalLink[1]).match(/[?]/g)){
+                            tagnot= urlencode(finalLink[1]).concat('&tag='+req.body.postTagId);
+                          }else{
+                            tagnot= urlencode(finalLink[1]).concat('?tag='+req.body.postTagId);
+                          }
+                        } else if(unshortenedUrl.match(/tag/g)){
+                     let finalLink =unshortenedUrl.split('&');
+                     for (let h = 0; h < finalLink.length; h++) {
+                       if(finalLink[h].match(/[?]/g)){
+                         if(finalLink[h].match(/tag/g)){
+                           let finalLinkssd =finalLink[h].split('?');
+                           finalLink[h] = finalLinkssd[0].concat('?tag='+req.body.postTagId)
+                         }
+                       }else if(finalLink[h].match(/^ascsubtag/g)){
+                         finalLink[h] = 'demoyou'
+                       }else if(finalLink[h].match(/^keywords/g)){
+                         finalLink[h] = 'demoyou'
+                       }else if(finalLink[h].match(/^ascsub/g)){
+                         finalLink[h] = 'demoyou'
+                       }else if(finalLink[h].match(/^tag/g)){
+                         finalLink[h] = 'tag='+req.body.postTagId
+                       }
+                     }
+                      tagnot= finalLink.join('&').replace(/@/g, '');
+                    }else{
+                      if(unshortenedUrl.match(/[?]/g)){
+                        tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag='+req.body.postTagId);
+                         }else{
+                        tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId);
+                         }
+                    }
+                   example(tagnot.replace(/&demoyou/g, ''));
+                      async function example(dddd) {
+                        let response =await bitly.shorten(dddd);
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    }
+                      }else if(unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/unacademy.com/g) ||unshortenedUrl.match(/coolwinks.com/g) ||unshortenedUrl.match(/orra.co.in/g) ||unshortenedUrl.match(/360totalsecurity.com/g) ||unshortenedUrl.match(/maxbupa.com/g) ||unshortenedUrl.match(/religarehealthinsurance.com/g) ||unshortenedUrl.match(/fnp.com/g) ||unshortenedUrl.match(/healthxp.in/g) ||unshortenedUrl.match(/bigrock.in/g) ||unshortenedUrl.match(/igp.com/g) ||unshortenedUrl.match(/letyshops.com/g) ||unshortenedUrl.match(/spartanpoker.com/g) ||unshortenedUrl.match(/adda52.com/g) ||unshortenedUrl.match(/balaji/g) ||unshortenedUrl.match(/eduonix.com/g) ||unshortenedUrl.match(/paytmmall.com/g) ||unshortenedUrl.match(/testbook.com/g) ||unshortenedUrl.match(/mamaearth.in/g) ||unshortenedUrl.match(/wonderchef.com/g) ||unshortenedUrl.match(/zee5/g) ||unshortenedUrl.match(/beardo.in/g) ||unshortenedUrl.match(/oneplus.in/g) ||unshortenedUrl.match(/1mg.com/g) ||unshortenedUrl.match(/udemy.com/g) ||unshortenedUrl.match(/hometown.in/g) ||unshortenedUrl.match(/magzter.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/ajio.com/g) ||unshortenedUrl.match(/timesprime.com/g)||unshortenedUrl.match(/themomsco.com/g) ||unshortenedUrl.match(/akbartravels.com/g) ||unshortenedUrl.match(/aliexpress.com/g) ||unshortenedUrl.match(/banggood.in/g) ||unshortenedUrl.match(/bata.in/g) ||unshortenedUrl.match(/behrouzbiryani.com/g) ||unshortenedUrl.match(/biba.in/g) ||unshortenedUrl.match(/bigbasket.com/g) ||unshortenedUrl.match(/brandfactoryonline.com/g) ||unshortenedUrl.match(/chumbak.com/g) ||unshortenedUrl.match(/cleartrip.com/g) ||unshortenedUrl.match(/clovia.com/g) ||unshortenedUrl.match(/croma.com/g) ||unshortenedUrl.match(/decathlon.in/g) ||unshortenedUrl.match(/dominos.co.in/g) ||unshortenedUrl.match(/etihad.com/g) ||unshortenedUrl.match(/faasos.io/g) ||unshortenedUrl.match(/fabhotels.com/g) ||unshortenedUrl.match(/firstcry.com/g) ||unshortenedUrl.match(/flipkart.com/g) ||unshortenedUrl.match(/fossil.com/g) ||unshortenedUrl.match(/harmanaudio.in/g) ||unshortenedUrl.match(/hungama.com/g) ||unshortenedUrl.match(/insider.in/g) ||unshortenedUrl.match(/jockeyindia.com/g) ||unshortenedUrl.match(/kalkifashion.com/g) ||unshortenedUrl.match(/lenskart.com/g) ||unshortenedUrl.match(/lifestylestores.com/g) ||unshortenedUrl.match(/limeroad.com/g) ||unshortenedUrl.match(/manyavar.com/g) ||unshortenedUrl.match(/mcdonaldsindia.com/g) ||unshortenedUrl.match(/medlife.com/g) ||unshortenedUrl.match(/microsoft.com/g) ||unshortenedUrl.match(/mivi.in/g) ||unshortenedUrl.match(/makemytrip.com/g) ||unshortenedUrl.match(/myntra.com/g) ||unshortenedUrl.match(/nnnow.com/g) ||unshortenedUrl.match(/nykaafashion.com/g) ||unshortenedUrl.match(/oyorooms.com/g) ||unshortenedUrl.match(/pepperfry.com/g) ||unshortenedUrl.match(/pizzahut.co.in/g) ||unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/qatarairways.com/g) ||unshortenedUrl.match(/rentomojo.com/g) ||unshortenedUrl.match(/samsung.com/g) ||unshortenedUrl.match(/singaporeair.com/g) ||unshortenedUrl.match(/sochstore.com/g) ||unshortenedUrl.match(/tanishq.co.in/g) ||unshortenedUrl.match(/themancompany.com/g) ||unshortenedUrl.match(/zivame.com/g) ||unshortenedUrl.match(/zoomcar.com/g) ){
+                        console.log("2222222222");
+                   
+                      let sqlssnet = "SELECT * FROM diff_net_posts WHERE active_flag ='TRUE'";
+                      connection.query(sqlssnet, function (err, flagsData) {
+                        if (err) {
+                          console.log('err: ', err);
+                        setup();
+                        }
+                        let ListflagDatass = flagsData;
+                      let tagnot;
+                      let quelink;
+                      if(unshortenedUrl.match(/earnkaro/g)){
+                        let finalLink =unshortenedUrl.split('dl=');
+                        quelink = finalLink[1];
+                      for (let k = 0; k < ListflagDatass.length; k++) {
+                        if(urlencode(finalLink[1]).match(ListflagDatass[k].domain_url)){
+                          tagnot= ListflagDatass[k].Landing_Page.concat("?subid="+req.body.admitad_post_tag+"&ulp=").concat(urlencode(finalLink[1]));
+                        }
+                      }
+                      }else{
+                        quelink = unshortenedUrl;
+                        for (let t = 0; t < ListflagDatass.length; t++) {
+                          if(urlencode(unshortenedUrl).match(ListflagDatass[t].domain_url)){
+                            tagnot= ListflagDatass[t].Landing_Page.concat("?subid="+req.body.admitad_post_tag+"&ulp=").concat(urlencode(unshortenedUrl));
+                          }
+                        }
+                      }
+                      if(tagnot != undefined){
+                      example(tagnot.replace(/%25/g,'%'));
+                       }else{
+                        if(urlencode(quelink).match(/flipkart.com/g)){
+                          let finalLink =urlencode(quelink).split('&');
+                          for (let h = 0; h < finalLink.length; h++) {
+                            if(finalLink[h].match(/^affid/g)){
+                              finalLink[h] = 'demoyou'
+                            }else if(finalLink[h].match(/^affExtParam1/g)){
+                              finalLink[h] = 'demoyou'
+                            }
+                          }
+                        let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
+                          tagnot= ("https://linksredirect.com/?cid=76950&subid=kudrat_cl&source=linkkit&url=").concat(encodeURIComponent(sstarget));
+                           example(tagnot);
+                        }
+                      }
+                      async function example(dddd) {
+                        let response =await bitly.shorten(dddd);
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    }
+                  })
+                    } else{
+                      console.log("3333333");
+                      tall(unshortenedUrl, {
+                        method: 'HEAD',
+                        maxRedirect: 5
+                      }).then(function(unshortenedUrls){ 
+                      let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+                      if(unshortenedUrl.match(/amazon.in/g)){
+                        let tagnot;
+                        if(unshortenedUrl.match(/tag/g)){
+                      let finalLink =unshortenedUrl.split('&');
+                     for (let h = 0; h < finalLink.length; h++) {
+                      if(finalLink[h].match(/[?]/g)){
+                        if(finalLink[h].match(/tag/g)){
+                          let finalLinkssd =finalLink[h].split('?');
+                          finalLink[h] = finalLinkssd[0].concat('?tag='+req.body.postTagId)
+                        }
+                      }else if(finalLink[h].match(/^ascsubtag/g)){
+                        finalLink[h] = 'demoyou'
+                      }else if(finalLink[h].match(/^keywords/g)){
+                        finalLink[h] = 'demoyou'
+                      }else if(finalLink[h].match(/^ascsub/g)){
+                        finalLink[h] = 'demoyou'
+                      }else if(finalLink[h].match(/^tag/g)){
+                        finalLink[h] = 'tag='+req.body.postTagId
+                      }
+                    }
+                     tagnot= finalLink.join('&').replace(/@/g, '');
+                    }else{
+                      if(unshortenedUrl.match(/[?]/g)){
+                        tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag='+req.body.postTagId);
+                         }else{
+                        tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId);
+                         }
+                    }
+                   example(tagnot.replace(/&demoyou/g, ''));
+                        async function example(dddd) {
+                          let response =await bitly.shorten(dddd);
+                        final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                      }
+                      }else{
+                        final[j] = ' ';
+                      }
+                    })
+                    .catch(function(err){ console.error('AAAW 👻', err)})
+                    }
+                      })
+                      .catch(function(err){ console.error('AAAW 👻', err)})
+                }else{
+                  // final[j] = array[j].replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/#/g, '').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+                  final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@frcp_deals/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+                }
+              }
+               setTimeout(()=>{
+                 let finalAmazon = final.join('\n');
+              if(finalAmazon.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 for (let l = 0; l < finalPostList.length; l++) {
+                   if(req.body.postImg != ""){
+                    teleAutoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                   }else{
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                   }
+                }
+              nextCall(null, urlencodedd(finalAmazon));
+              }
+                },Math.ceil(array.length/2)*6000);
+              })
+            }
+    ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status_code: 200,
+      message: "telegrame post create sucessfully",
+      data: response
+    });
+  })
+})
+
+router.post('/api/unconvert_posts', function (req, res, next) {
+  async.waterfall([
+    function (nextCall) {
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
+              }
+              let ListflagData = flagData[0];
                  let finalAmazon = req.body.convertText;
                  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
                  for (let l = 0; l < finalPostList.length; l++) {
+                   if(req.body.postImg != ""){
                     teleAutoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
-                }
+                   }else{
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                   }
+                  }
+              //   if(req.body.postImg != ""){
+              //   teleAutoPostChannel(finalAmazon,req.body.postImg,'@savekaro01',ListflagData.kudart_token);
+              // }else{
+              //       teleAutoname(finalAmazon,'@savekaro01',ListflagData.kudart_token);
+              //      }
               nextCall(null, urlencodedd(finalAmazon));
               })
             }
@@ -604,6 +821,14 @@ function teleAutoPostChannel(finalAmazon,img,chanelName,token){
     caption: finalAmazon,
     disable_web_page_preview: true
   });
+}
+
+function teleAutoname(finalAmazon,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendMessage(chatId, finalAmazon,{
+    disable_web_page_preview: true
+  })
 }
 
 
