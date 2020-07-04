@@ -26,9 +26,9 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-//  server.listen(port, () => {
-//      wakeDyno({url:'https://addnodehandler.herokuapp.com/',interval: 200000}).start(); // DYNO_URL should be the url of your Heroku app
-//  });
+ server.listen(port, () => {
+     wakeDyno({url:'https://addnodehandler.herokuapp.com/',interval: 200000}).start(); // DYNO_URL should be the url of your Heroku app
+ });
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
