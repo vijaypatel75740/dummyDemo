@@ -14,12 +14,23 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// app.use(function(req, res, next) {
+//   res.header("Access-Control-Allow-Credentials", true);
+//   res.header('Access-Control-Allow-Origin', req.headers.origin);
+//   res.header("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5,  Date, X-Api-Version, X-File-Name, user-access-token");
+//   res.header('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
+//   next();
+// });
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Credentials", true);
-  res.header('Access-Control-Allow-Origin', req.headers.origin);
-  res.header("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5,  Date, X-Api-Version, X-File-Name, user-access-token");
+  res.header('Access-Control-Allow-Origin', "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type, X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5,  Date, X-Api-Version, X-File-Name, user-access-token,authorization, authorizations");
   res.header('Access-Control-Allow-Methods', "POST, GET, PUT, DELETE, OPTIONS");
-  next();
+  if(req.method == 'OPTIONS'){        
+      return res.status(200).json({});
+  } else {
+      next();
+  }
 });
 app.use(logger('dev'));
 // app.use(express.json());

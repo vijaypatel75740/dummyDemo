@@ -14,6 +14,11 @@ const axios = require('axios');
 var textVersion = require("textversionjs");
 const cheerio = require('cheerio')
 var _ = require('underscore');
+var isLoggedInPolicie = require('../policies/isLoggedIn.js');
+var isUserAuthenticatedPolicy = require('../policies/isUserAuthenticated.js');
+var jwt = require('jsonwebtoken');
+
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
@@ -27,6 +32,7 @@ router.post('/login', function (req, res) {
     function (nextCall) {
       let sql = 'SELECT * FROM login WHERE email = ? AND password = ?';
       connection.query(sql, [req.body.email, req.body.password], function (err, rides) {
+        console.log('rides: ', rides);
         if (err) {
           return nextCall({
             "message": "something went wrong",
@@ -39,7 +45,20 @@ router.post('/login', function (req, res) {
           });
         }
       })
-    }
+    },
+    function (admin, nextCall) {
+      var jwtData = {
+          id: admin.id,
+          email: admin.email
+      };
+      // create a token
+      admin.auth_token = jwt.sign(jwtData, config.secret, {
+          expiresIn: 3600 * 1 // expires in 24 hours
+      });
+      console.log('admin: ', admin);
+      // delete admin.password;
+      nextCall(null, admin);
+  }
   ], function (err, response) {
     if (err) {
       return res.send({
@@ -55,7 +74,63 @@ router.post('/login', function (req, res) {
   });
 });
 
-router.get('/allinoneappsss', function (req, res, next) {
+router.post('/register', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      let sql = 'SELECT COUNT(*) as cnt FROM login WHERE login.email ="' + req.body.email +'"';
+          connection.query(sql, function (err, rides) {
+            if (err) {
+              return nextCall({
+                "message": "something went wrong",
+              });
+            }
+            else if (rides[0].cnt == 0) {
+              nextCall(null, rides[0].cnt);
+            } else {
+              return nextCall({
+                "message": "User is alerady Register",
+              });
+            }
+          })
+        },function (admin,nextCall) {
+           values =   [ [
+                   req.body.Username,
+                   req.body.email,
+                   req.body.Phonenumber,
+                   req.body.password,
+                   "Pendding",
+                   " ",
+                   " "
+                ] ]
+
+      let sqlss = "INSERT INTO login (username,email,phonenubmer,password,status,auth_token,tag_id) VALUES ?";
+      connection.query(sqlss, [values], function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "user register sucessfully now wait account conformation.",
+      data: response
+    });
+  });
+});
+
+router.all('/api/*', isUserAuthenticatedPolicy, isLoggedInPolicie);
+
+router.get('/api/allinoneappsss', function (req, res, next) {
   async.waterfall([
     function (nextCall) {
 
@@ -186,18 +261,18 @@ router.get('/allinoneappsss', function (req, res, next) {
 });
 
 
-router.post('/addAllInOneData', function (req, res) {
+router.post('/api/addAllInOneData', function (req, res) {
   async.waterfall([
     function (nextCall) {
       values =   [ [
-                   req.body.storeIcon,
+                  //  req.body.storeIcon,
                    req.body.sNLink,
                    req.body.sALink,
                    req.body.storeN,
                    req.body.isAffiliated,
                    req.body.storeID,
                 ] ]
-      let sqlss = "INSERT INTO all_in_one (storeIcon,sNLink,sALink,storeN,isAffiliated,storeID) VALUES ?";
+      let sqlss = "INSERT INTO diff_net_posts (short_url,Landing_Page,Brand,active_flag,domain_url) VALUES ?";
       connection.query(sqlss, [values], function (err, rides) {
         if (err) {
           return nextCall({
@@ -222,7 +297,7 @@ router.post('/addAllInOneData', function (req, res) {
   });
 });
 
-router.post('/addtokenData', function (req, res) {
+router.post('/api/addtokenData', function (req, res) {
   async.waterfall([
     function (nextCall) {
       values =   [ [
@@ -253,11 +328,11 @@ router.post('/addtokenData', function (req, res) {
   });
 });
 
-router.post('/editAllInOneData', function (req, res) {
+router.post('/api/editAllInOneData', function (req, res) {
   async.waterfall([
     function (nextCall) {
       values =  [
-                   req.body.storeIcon,
+                  //  req.body.storeIcon,
                    req.body.sNLink,
                    req.body.sALink,
                    req.body.storeN,
@@ -265,7 +340,7 @@ router.post('/editAllInOneData', function (req, res) {
                    req.body.storeID,
                    req.body.id,
                 ]
-      var sqlss = "UPDATE all_in_one set storeIcon =? , sNLink =? ,sALink =? , storeN =?,isAffiliated =? , storeID =?  WHERE id = ?";
+      var sqlss = "UPDATE diff_net_posts set short_url =? ,Landing_Page =? , Brand =?,active_flag =? , domain_url =?  WHERE id = ?";
       connection.query(sqlss, values, function (err, rides) {
         if (err) {
           return nextCall({
@@ -290,7 +365,7 @@ router.post('/editAllInOneData', function (req, res) {
   });
 });
 
-router.post('/editpostFlags', function (req, res) {
+router.post('/api/editpostFlags', function (req, res) {
   async.waterfall([
     function (nextCall) {
       values =  [
@@ -322,7 +397,7 @@ router.post('/editpostFlags', function (req, res) {
   });
 });
 
-router.get('/singlepostFlags', function (req, res) {
+router.get('/api/singlepostFlags', function (req, res) {
   async.waterfall([
     function (nextCall) {
       var sqlss = " SELECT * FROM post_flags WHERE id = 1";
@@ -352,128 +427,160 @@ router.get('/singlepostFlags', function (req, res) {
 
 function urlencode(str) {
   return str.replace(/%21/g,'!').replace(/%20/g,' ').replace(/%22/g,'"').replace(/%26/g,'&')
-    .replace(/%27/g,'\'').replace(/%3A/g,':').replace(/%2F/g,'/').replace(/%3D/g,'=')
+    .replace(/%27/g,'\'').replace(/%3A/g,':').replace(/%2F/g,'/api/').replace(/%3D/g,'=')
     .replace(/%28/g,'(').replace(/%3F/g,'?').replace(/%29/g,')').replace(/%2A/g,'*')
     .replace(/%20/g, '+');
 }
-router.post('/automation_posts', function (req, res, next) {
+// router.post('/api/automation_posts', function (req, res, next) {
+//   async.waterfall([
+//     function (nextCall) {
+//               let final =[];
+//               let array = req.body.convertText.split("\n");
+//                for (let j = 0; j < array.length; j++) {
+//                 if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
+//                   let xzhxzh;
+//                     if(array[j].match(/amazon.in/g)){
+//                      xzhxzh = array[j].replace(/[[\]]/g,'').replace(/ /g, '@')
+//                     }else{
+//                     xzhxzh = array[j]
+//                     }
+//                   let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
+//                      tall(urls[0], {
+//                       method: 'HEAD',
+//                       maxRedirect: 5
+//                     }).then(function(unshortenedUrl){ 
+//                       console.log('unshortenedUrl--1: ', unshortenedUrl);
+//                     if(unshortenedUrl.match(/amazon.in/g)){
+//                       console.log('unshortenedUrl--2: ', unshortenedUrl);
+//                       let tagnot;
+//                       if(unshortenedUrl.match(/earnkaro/g)){
+//                         let finalLink =unshortenedUrl.split('dl=');
+//                          if(urlencode(finalLink[1]).match(/[?]/g)){
+//                           tagnot= urlencode(finalLink[1]).concat('&tag='+req.body.postTagId);
+//                         }else{
+//                           tagnot= urlencode(finalLink[1]).concat('?tag='+req.body.postTagId);
+//                         }
+//                       }else if(unshortenedUrl.match(/paisawapas/g)){
+//                           let finalLink =unshortenedUrl.split('url=');
+//                            if(urlencode(finalLink[1]).match(/[?]/g)){
+//                             tagnot= urlencode(finalLink[1]).concat('&tag='+req.body.postTagId);
+//                           }else{
+//                             tagnot= urlencode(finalLink[1]).concat('?tag='+req.body.postTagId);
+//                           }
+//                         } else if(unshortenedUrl.match(/tag/g)){
+//                     let finalLink =unshortenedUrl.split('&');
+//                     for (let h = 0; h < finalLink.length; h++) {
+//                       if(finalLink[h].match(/[?]/g)){
+//                         if(finalLink[h].match(/tag/g)){
+//                           let finalLinkssd =finalLink[h].split('?');
+//                           finalLink[h] = finalLinkssd[0].concat('?tag='+req.body.postTagId)
+//                         }
+//                       }else if(finalLink[h].match(/^ascsubtag/g)){
+//                         finalLink[h] = 'demoyou'
+//                       }else if(finalLink[h].match(/^ascsub/g)){
+//                         finalLink[h] = 'demoyou'
+//                       }else if(finalLink[h].match(/^tag/g)){
+//                         finalLink[h] = 'tag='+req.body.postTagId
+//                       }
+//                     }
+//                      tagnot= finalLink.join('&').replace(/@/g, '');
+//                     }else{
+//                      tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag='+req.body.postTagId);
+//                     }
+//                    example(tagnot.replace(/&demoyou/g, ''));
+//                         async function example(dddd) {
+//                           let response =await bitly.shorten(dddd);
+//                         final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').concat("\n").replace(/&/g, 'and').replace(/;/g, ' ');
+//                         console.log('final[j]2: ', final[j]);
+//                       }
+//                     }else{
+//                       tall(unshortenedUrl, {
+//                         method: 'HEAD',
+//                         maxRedirect: 5
+//                       }).then(function(unshortenedUrl){ 
+//                         console.log('unshortenedUrl: ', unshortenedUrl);
+                    
+//                       if(unshortenedUrl.match(/amazon.in/g)){
+//                         let tagnot;
+//                         if(unshortenedUrl.match(/tag/g)){
+//                       let finalLink =unshortenedUrl.split('&');
+//                      for (let h = 0; h < finalLink.length; h++) {
+//                       if(finalLink[h].match(/[?]/g)){
+//                         if(finalLink[h].match(/tag/g)){
+//                           let finalLinkssd =finalLink[h].split('?');
+//                           finalLink[h] = finalLinkssd[0].concat('?tag='+req.body.postTagId)
+//                         }
+//                       }else if(finalLink[h].match(/^ascsubtag/g)){
+//                         finalLink[h] = 'demoyou'
+//                       }else if(finalLink[h].match(/^ascsub/g)){
+//                         finalLink[h] = 'demoyou'
+//                       }else if(finalLink[h].match(/^tag/g)){
+//                         finalLink[h] = 'tag='+req.body.postTagId
+//                       }
+//                     }
+//                      tagnot= finalLink.join('&').replace(/@/g, '');
+//                     }else{
+//                      tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag='+req.body.postTagId);
+//                     }
+//                    example(tagnot.replace(/&demoyou/g, ''));
+//                           async function example(dddd) {
+//                             let response =await bitly.shorten(dddd);
+//                           final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').concat("\n").replace(/&/g, 'and').replace(/;/g, ' ');
+//                           console.log('final[j]2: ', final[j]);
+//                         }
+//                       }else{
+//                         // let finalLink =unshortenedUrl.split('?');
+//                         // final[j] = array[j].replace("["+urls[0].replace(/@/g, ' ').trim()+"]",finalLink[0]).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+//                         final[j] = ' ';
+//                       }
+//                     })
+//                     .catch(function(err){ console.error('AAAW 👻', err)})
+//                     }
+//                       })
+//                       .catch(function(err){ console.error('AAAW 👻', err)})
+//                 }else{
+//                   final[j] = array[j].replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/#/g, '').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+//                 }
+//               }
+//                setTimeout(()=>{
+//                  let finalAmazon = final.join('\n');
+//                  console.log('finalAmazon: ', finalAmazon);
+//                if(finalAmazon.match(/amzn.to/g)){
+//               nextCall(null, urlencodedd(finalAmazon));
+//              }
+//                },Math.ceil(array.length/2)*6000);
+//             }
+//     ], function (err, response) {
+//     if (err) {
+//       return res.send({
+//         status: err.code ? err.code : 400,
+//         message: (err && err.msg) || "someyhing went wrong"
+//       });
+//     }
+//     return res.send({
+//       status_code: 200,
+//       message: "telegrame post create sucessfully",
+//       data: response
+//     });
+//   })
+// })
+
+router.post('/api/automation_posts', function (req, res, next) {
   async.waterfall([
     function (nextCall) {
-              let final =[];
-              let array = req.body.convertText.split("\n");
-               for (let j = 0; j < array.length; j++) {
-                if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
-                  let xzhxzh;
-                    if(array[j].match(/amazon.in/g)){
-                     xzhxzh = array[j].replace(/[[\]]/g,'').replace(/ /g, '@')
-                    }else{
-                    xzhxzh = array[j]
-                    }
-                  let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
-                     tall(urls[0], {
-                      method: 'HEAD',
-                      maxRedirect: 5
-                    }).then(function(unshortenedUrl){ 
-                      console.log('unshortenedUrl--1: ', unshortenedUrl);
-                    if(unshortenedUrl.match(/amazon.in/g)){
-                      console.log('unshortenedUrl--2: ', unshortenedUrl);
-                      let tagnot;
-                      if(unshortenedUrl.match(/earnkaro/g)){
-                        let finalLink =unshortenedUrl.split('dl=');
-                         if(urlencode(finalLink[1]).match(/[?]/g)){
-                          tagnot= urlencode(finalLink[1]).concat('&tag=kudrats-21');
-                        }else{
-                          tagnot= urlencode(finalLink[1]).concat('?tag=kudrats-21');
-                        }
-                      }else if(unshortenedUrl.match(/paisawapas/g)){
-                          let finalLink =unshortenedUrl.split('url=');
-                           if(urlencode(finalLink[1]).match(/[?]/g)){
-                            tagnot= urlencode(finalLink[1]).concat('&tag=kudrats-21');
-                          }else{
-                            tagnot= urlencode(finalLink[1]).concat('?tag=kudrats-21');
-                          }
-                        } else if(unshortenedUrl.match(/tag/g)){
-                    let finalLink =unshortenedUrl.split('&');
-                    for (let h = 0; h < finalLink.length; h++) {
-                      if(finalLink[h].match(/[?]/g)){
-                        if(finalLink[h].match(/tag/g)){
-                          let finalLinkssd =finalLink[h].split('?');
-                          finalLink[h] = finalLinkssd[0].concat('?tag=kudrats-21')
-                        }
-                      }else if(finalLink[h].match(/^ascsubtag/g)){
-                        finalLink[h] = 'demoyou'
-                      }else if(finalLink[h].match(/^ascsub/g)){
-                        finalLink[h] = 'demoyou'
-                      }else if(finalLink[h].match(/^tag/g)){
-                        finalLink[h] = 'tag=kudrats-21'
-                      }
-                    }
-                     tagnot= finalLink.join('&').replace(/@/g, '');
-                    }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag=kudrats-21');
-                    }
-                   example(tagnot.replace(/&demoyou/g, ''));
-                        async function example(dddd) {
-                          let response =await bitly.shorten(dddd);
-                        final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').concat("\n").replace(/&/g, 'and').replace(/;/g, ' ');
-                        console.log('final[j]2: ', final[j]);
-                      }
-                    }else{
-                      tall(unshortenedUrl, {
-                        method: 'HEAD',
-                        maxRedirect: 5
-                      }).then(function(unshortenedUrl){ 
-                        console.log('unshortenedUrl: ', unshortenedUrl);
-                    
-                      if(unshortenedUrl.match(/amazon.in/g)){
-                        let tagnot;
-                        if(unshortenedUrl.match(/tag/g)){
-                      let finalLink =unshortenedUrl.split('&');
-                     for (let h = 0; h < finalLink.length; h++) {
-                      if(finalLink[h].match(/[?]/g)){
-                        if(finalLink[h].match(/tag/g)){
-                          let finalLinkssd =finalLink[h].split('?');
-                          finalLink[h] = finalLinkssd[0].concat('?tag=kudrats-21')
-                        }
-                      }else if(finalLink[h].match(/^ascsubtag/g)){
-                        finalLink[h] = 'demoyou'
-                      }else if(finalLink[h].match(/^ascsub/g)){
-                        finalLink[h] = 'demoyou'
-                      }else if(finalLink[h].match(/^tag/g)){
-                        finalLink[h] = 'tag=kudrats-21'
-                      }
-                    }
-                     tagnot= finalLink.join('&').replace(/@/g, '');
-                    }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('&tag=kudrats-21');
-                    }
-                   example(tagnot.replace(/&demoyou/g, ''));
-                          async function example(dddd) {
-                            let response =await bitly.shorten(dddd);
-                          final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').concat("\n").replace(/&/g, 'and').replace(/;/g, ' ');
-                          console.log('final[j]2: ', final[j]);
-                        }
-                      }else{
-                        // let finalLink =unshortenedUrl.split('?');
-                        // final[j] = array[j].replace("["+urls[0].replace(/@/g, ' ').trim()+"]",finalLink[0]).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
-                        final[j] = ' ';
-                      }
-                    })
-                    .catch(function(err){ console.error('AAAW 👻', err)})
-                    }
-                      })
-                      .catch(function(err){ console.error('AAAW 👻', err)})
-                }else{
-                  final[j] = array[j].replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/#/g, '').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
-                }
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
               }
-               setTimeout(()=>{
-                 let finalAmazon = final.join('\n');
-                 console.log('finalAmazon: ', finalAmazon);
-               if(finalAmazon.match(/amzn.to/g)){
+              let ListflagData = flagData[0];
+                 let finalAmazon = req.body.convertText;
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                }
               nextCall(null, urlencodedd(finalAmazon));
-             }
-               },Math.ceil(array.length/2)*6000);
+              })
             }
     ], function (err, response) {
     if (err) {
@@ -489,6 +596,16 @@ router.post('/automation_posts', function (req, res, next) {
     });
   })
 })
+
+function teleAutoPostChannel(finalAmazon,img,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendPhoto(chatId, img, {
+    caption: finalAmazon,
+    disable_web_page_preview: true
+  });
+}
+
 
 function urlencodedd(str) {
   return str.replace(/%E2%82%B9/g,' ₹').replace(/%E2%9A%9C/g,' ⚜').replace(/%F0%9F%8E%B8/g,' 🤝').replace(/%F0%9F%82%A0/g,' 🂠').replace(/%F0%9F%82%A1/g,' 🂡').replace(/%F0%9F%82%A2/g,' 🂢').replace(/%F0%9F%82%A3/g,' 🂣').replace(/%F0%9F%82%A4/g,' 🂤').replace(/%F0%9F%82%A5/g,' 🂥').replace(/%F0%9F%82%A6/g,' 🂦').replace(/%F0%9F%82%A7/g,' 🂧').replace(/%F0%9F%82%A8/g,' 🂨').replace(/%F0%9F%82%A9/g,' 🂩').replace(/%F0%9F%82%AA/g,' 🂪').replace(/%F0%9F%82%AB/g,' 🂫').replace(/%F0%9F%82%AC/g,' 🂬').replace(/%F0%9F%82%AD/g,' 🂭').replace(/%F0%9F%82%AE/g,' 🂮').replace(/%F0%9F%82%B1/g,' 🂱').replace(/%F0%9F%82%B2/g,' 🂲').replace(/%F0%9F%82%B3/g,' 🂳').replace(/%F0%9F%82%B4/g,' 🂴').replace(/%F0%9F%82%B5/g,' 🂵').replace(/%F0%9F%82%B6/g,' 🂶').replace(/%F0%9F%82%B7/g,' 🂷').replace(/%F0%9F%82%B8/g,' 🂸').replace(/%F0%9F%82%B9/g,' 🂹').replace(/%F0%9F%82%BA/g,' 🂺').replace(/%F0%9F%82%BB/g,' 🂻').replace(/%F0%9F%82%BC/g,' 🂼').replace(/%F0%9F%82%BD/g,' 🂽').replace(/%F0%9F%82%BE/g,' 🂾').replace(/%F0%9F%83%81/g,' 🃁').replace(/%F0%9F%83%82/g,' 🃂').replace(/%F0%9F%83%83/g,' 🃃').replace(/%F0%9F%83%84/g,' 🃄').replace(/%F0%9F%83%85/g,' 🃅').replace(/%F0%9F%83%86/g,' 🃆').replace(/%F0%9F%83%87/g,' 🃇').replace(/%F0%9F%83%88/g,' 🃈').replace(/%F0%9F%83%89/g,' 🃉').replace(/%F0%9F%83%8A/g,' 🃊').replace(/%F0%9F%83%8B/g,' 🃋').replace(/%F0%9F%83%8C/g,' 🃌').replace(/%F0%9F%83%8D/g,' 🃍').replace(/%F0%9F%83%8E/g,' 🃎').replace(/%F0%9F%83%8F/g,' 🃏').replace(/%F0%9F%83%91/g,' 🃑').replace(/%F0%9F%83%92/g,' 🃒').replace(/%F0%9F%83%93/g,' 🃓').replace(/%F0%9F%83%94/g,' 🃔').replace(/%F0%9F%83%95/g,' 🃕').replace(/%F0%9F%83%96/g,' 🃖').replace(/%F0%9F%83%97/g,' 🃗')
@@ -518,10 +635,10 @@ function urlencodedd(str) {
   }
 
 
-router.get('/singleAllInOneData/:id', function (req, res) {
+router.get('/api/singleAllInOneData/:id', function (req, res) {
   async.waterfall([
     function (nextCall) {
-      var sqlss = " SELECT * FROM all_in_one WHERE id =" + req.params.id;
+      var sqlss = " SELECT * FROM diff_net_posts WHERE id =" + req.params.id;
       connection.query(sqlss, function (err, rides) {
         if (err) {
           return nextCall({
@@ -546,7 +663,7 @@ router.get('/singleAllInOneData/:id', function (req, res) {
   });
 });
 
-router.get('/singleBitlyData', function (req, res) {
+router.get('/api/singleBitlyData', function (req, res) {
   async.waterfall([
     function (nextCall) {
       var sqlss = " SELECT * FROM bitly_token";
@@ -575,10 +692,10 @@ router.get('/singleBitlyData', function (req, res) {
   });
 });
 
-router.delete('/deleteAllInOneData/:id', function (req, res) {
+router.delete('/api/deleteAllInOneData/:id', function (req, res) {
   async.waterfall([
     function (nextCall) {
-      var sqlss = " DELETE FROM all_in_one WHERE id =" + req.params.id;
+      var sqlss = " DELETE FROM diff_net_posts WHERE id =" + req.params.id;
       connection.query(sqlss, function (err, rides) {
         if (err) {
           return nextCall({
@@ -603,7 +720,7 @@ router.delete('/deleteAllInOneData/:id', function (req, res) {
   });
 });
 
-router.post('/getAllInOneData', function (req, res) {
+router.post('/api/getAllInOneData', function (req, res) {
   var response = {
     "draw": req.body.draw || 0,
     "recordsTotal": 0,
@@ -613,7 +730,8 @@ router.post('/getAllInOneData', function (req, res) {
   async.waterfall([
     function (nextCall) {
       var sql = "Select count(*) as TotalCount from ??";
-      connection.query(sql, ['all_in_one'], function (err, rides) {
+      // connection.query(sql, ['all_in_one'], function (err, rides) {
+      connection.query(sql, ['diff_net_posts'], function (err, rides) {
         if (err) {
           console.log('11');
           return nextCall({
@@ -628,7 +746,7 @@ router.post('/getAllInOneData', function (req, res) {
       startNum = parseInt(req.body.start) || 0;
       LimitNum = parseInt(req.body.length) || 10;
       var query = "Select * from ?? WHERE " + req.body.columns[req.body.order[0].column].data + " LIKE '%" + req.body.search.value + "%' ORDER BY " + req.body.columns[req.body.order[0].column].data + ' ' + req.body.order[0].dir + " limit ? OFFSET ?";
-      connection.query(query, ["all_in_one", LimitNum, startNum], function (err, ridess) {
+      connection.query(query, ["diff_net_posts", LimitNum, startNum], function (err, ridess) {
         if (err) {
           return nextCall({
             "message": "something went wrong",
