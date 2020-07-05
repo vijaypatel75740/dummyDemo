@@ -747,17 +747,19 @@ router.post('/api/automation_posts', function (req, res, next) {
               if(finalAmazon.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
                  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
-                 if(req.body.WattsSendFlag){ 
                    if(req.body.postImg != ""){
                  for (let l = 0; l < finalPostList.length; l++) {
                     teleAutoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
                  }
+                 if(req.body.WattsSendFlag){ 
                     whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
                     whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
+                 }
                   }else{
                  for (let l = 0; l < finalPostList.length; l++) {
                     teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
                  }
+                 if(req.body.WattsSendFlag){ 
                     whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
                     whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
                 }
@@ -1135,17 +1137,19 @@ router.post('/api/unconvert_posts', function (req, res, next) {
                  let finalAmazon = req.body.convertText;
                  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
-                 if(req.body.WattsSendFlag){ 
                    if(req.body.postImg != ""){
                  for (let l = 0; l < finalPostList.length; l++) {
                     teleAutoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
                  }
+                 if(req.body.WattsSendFlag){ 
                     whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
                      whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId); 
-                  }else{
+                 }
+                    }else{
                  for (let l = 0; l < finalPostList.length; l++) {
                     teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
                  }
+                 if(req.body.WattsSendFlag){ 
                     whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
                     whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
                    }
