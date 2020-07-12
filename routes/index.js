@@ -54,7 +54,7 @@ router.post('/login', function (req, res) {
       };
       // create a token
       admin.auth_token = jwt.sign(jwtData, config.secret, {
-          expiresIn: 86400 * 1 // expires in 24 hours
+          expiresIn: 86400 * 7 // expires in 24 hours
       });
       console.log('admin: ', admin);
       // delete admin.password;
