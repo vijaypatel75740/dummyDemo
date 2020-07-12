@@ -17,6 +17,7 @@ var _ = require('underscore');
 var isLoggedInPolicie = require('../policies/isLoggedIn.js');
 var isUserAuthenticatedPolicy = require('../policies/isUserAuthenticated.js');
 var jwt = require('jsonwebtoken');
+const unshort = require('url-unshorten');
 
 
 /* GET home page. */
@@ -565,6 +566,10 @@ function urlencode(str) {
 //   })
 // })
 
+function urldecode(str) {
+  return str.replace(/&/g,'%26').replace(/=/g,'%3D').replace(/[?]/g,'%3F').replace(/[+]/g,'%2B').replace(/[[]/g,'%5B').replace(/[]]/g,'%5D');
+}
+
 router.post('/api/automation_posts', function (req, res, next) {
   async.waterfall([
     function (nextCall) {
@@ -580,17 +585,20 @@ router.post('/api/automation_posts', function (req, res, next) {
                       if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
                         let xzhxzh;
                           if(array[j].match(/amazon.in/g)){
-                           xzhxzh = array[j].replace(/[[\]]/g,'').replace(/ /g, '@')
+                           xzhxzh = array[j].replace(/[[]]/g,'').replace(/[[\]]/g,'').replace(/ /g, '@')
                           }else{
-                          xzhxzh = array[j]
+                          xzhxzh = array[j].replace(/[[]]/g,'')
                           }
                         let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
-                        console.log('urls: ', urls);
-                           tall(urls[0], {
-                            method: 'HEAD',
-                            maxRedirect: 5
-                    }).then(function(unshortenedUrls){ 
-                      let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+                        // console.log('urls: ', urls);
+                    //        tall(urls[0], {
+                    //         method: 'HEAD',
+                    //         maxRedirect: 5
+                    // }).then(function(unshortenedUrls){ 
+                    //   let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+
+                      unshort(urls[0]).then(function(unshortenedUrls){ 
+                        let unshortenedUrl = unshortenedUrls.unshorten.replace(/&amp;/g,'&');
                       console.log('unshortenedUrlsssssss: ', unshortenedUrl);
                     if(unshortenedUrl.match(/amazon.in/g)){
                       let tagnot;
@@ -656,14 +664,14 @@ router.post('/api/automation_posts', function (req, res, next) {
                         quelink = finalLink[1];
                       for (let k = 0; k < ListflagDatass.length; k++) {
                         if(urlencode(finalLink[1]).match(ListflagDatass[k].domain_url)){
-                          tagnot= ListflagDatass[k].Landing_Page.concat("?subid=kudratTG&ulp=").concat(urlencode(finalLink[1]));
+                          tagnot= ListflagDatass[k].Landing_Page.concat("?subid=kudratTG&ulp=").concat(urldecode(finalLink[1]));
                         }
                       }
                       }else{
                         quelink = unshortenedUrl;
                         for (let t = 0; t < ListflagDatass.length; t++) {
                           if(urlencode(unshortenedUrl).match(ListflagDatass[t].domain_url)){
-                            tagnot= ListflagDatass[t].Landing_Page.concat("?subid=kudratTG&ulp=").concat(urlencode(unshortenedUrl));
+                            tagnot= ListflagDatass[t].Landing_Page.concat("?subid=kudratTG&ulp=").concat(urldecode(unshortenedUrl));
                           }
                         }
                       }
@@ -690,12 +698,15 @@ router.post('/api/automation_posts', function (req, res, next) {
                     }
                   })
                     } else{
-                      console.log("3333333");
-                      tall(unshortenedUrl, {
-                        method: 'HEAD',
-                        maxRedirect: 5
-                      }).then(function(unshortenedUrls){ 
-                      let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+                      // console.log("3333333");
+                      // tall(unshortenedUrl, {
+                      //   method: 'HEAD',
+                      //   maxRedirect: 5
+                      // }).then(function(unshortenedUrls){ 
+                      // let unshortenedUrl = unshortenedUrls.replace(/&amp;/g,'&');
+
+                      unshort(unshortenedUrl).then(function(unshortenedUrls){ 
+                        let unshortenedUrl = unshortenedUrls.unshorten.replace(/&amp;/g,'&');
                       if(unshortenedUrl.match(/amazon.in/g)){
                         let tagnot;
                         if(unshortenedUrl.match(/tag/g)){
