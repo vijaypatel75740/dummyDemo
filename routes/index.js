@@ -647,7 +647,7 @@ router.post('/api/automation_posts', function (req, res, next) {
                         let response =await bitly.shorten(dddd);
                       final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
                     }
-                      }else if(unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/unacademy.com/g) ||unshortenedUrl.match(/coolwinks.com/g) ||unshortenedUrl.match(/orra.co.in/g) ||unshortenedUrl.match(/360totalsecurity.com/g) ||unshortenedUrl.match(/maxbupa.com/g) ||unshortenedUrl.match(/religarehealthinsurance.com/g) ||unshortenedUrl.match(/fnp.com/g) ||unshortenedUrl.match(/healthxp.in/g) ||unshortenedUrl.match(/bigrock.in/g) ||unshortenedUrl.match(/igp.com/g) ||unshortenedUrl.match(/letyshops.com/g) ||unshortenedUrl.match(/spartanpoker.com/g) ||unshortenedUrl.match(/adda52.com/g) ||unshortenedUrl.match(/balaji/g) ||unshortenedUrl.match(/eduonix.com/g) ||unshortenedUrl.match(/paytmmall.com/g) ||unshortenedUrl.match(/testbook.com/g) ||unshortenedUrl.match(/mamaearth.in/g) ||unshortenedUrl.match(/wonderchef.com/g) ||unshortenedUrl.match(/zee5/g) ||unshortenedUrl.match(/beardo.in/g) ||unshortenedUrl.match(/oneplus.in/g) ||unshortenedUrl.match(/1mg.com/g) ||unshortenedUrl.match(/udemy.com/g) ||unshortenedUrl.match(/hometown.in/g) ||unshortenedUrl.match(/magzter.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/ajio.com/g) ||unshortenedUrl.match(/timesprime.com/g)||unshortenedUrl.match(/themomsco.com/g) ||unshortenedUrl.match(/akbartravels.com/g) ||unshortenedUrl.match(/aliexpress.com/g) ||unshortenedUrl.match(/banggood.in/g) ||unshortenedUrl.match(/bata.in/g) ||unshortenedUrl.match(/behrouzbiryani.com/g) ||unshortenedUrl.match(/biba.in/g) ||unshortenedUrl.match(/bigbasket.com/g) ||unshortenedUrl.match(/brandfactoryonline.com/g) ||unshortenedUrl.match(/chumbak.com/g) ||unshortenedUrl.match(/cleartrip.com/g) ||unshortenedUrl.match(/clovia.com/g) ||unshortenedUrl.match(/croma.com/g) ||unshortenedUrl.match(/decathlon.in/g) ||unshortenedUrl.match(/dominos.co.in/g) ||unshortenedUrl.match(/etihad.com/g) ||unshortenedUrl.match(/faasos.io/g) ||unshortenedUrl.match(/fabhotels.com/g) ||unshortenedUrl.match(/firstcry.com/g) ||unshortenedUrl.match(/flipkart.com/g) ||unshortenedUrl.match(/fossil.com/g) ||unshortenedUrl.match(/harmanaudio.in/g) ||unshortenedUrl.match(/hungama.com/g) ||unshortenedUrl.match(/insider.in/g) ||unshortenedUrl.match(/jockeyindia.com/g) ||unshortenedUrl.match(/kalkifashion.com/g) ||unshortenedUrl.match(/lenskart.com/g) ||unshortenedUrl.match(/lifestylestores.com/g) ||unshortenedUrl.match(/limeroad.com/g) ||unshortenedUrl.match(/manyavar.com/g) ||unshortenedUrl.match(/mcdonaldsindia.com/g) ||unshortenedUrl.match(/medlife.com/g) ||unshortenedUrl.match(/microsoft.com/g) ||unshortenedUrl.match(/mivi.in/g) ||unshortenedUrl.match(/makemytrip.com/g) ||unshortenedUrl.match(/myntra.com/g) ||unshortenedUrl.match(/nnnow.com/g) ||unshortenedUrl.match(/nykaafashion.com/g) ||unshortenedUrl.match(/oyorooms.com/g) ||unshortenedUrl.match(/pepperfry.com/g) ||unshortenedUrl.match(/pizzahut.co.in/g) ||unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/qatarairways.com/g) ||unshortenedUrl.match(/rentomojo.com/g) ||unshortenedUrl.match(/samsung.com/g) ||unshortenedUrl.match(/singaporeair.com/g) ||unshortenedUrl.match(/sochstore.com/g) ||unshortenedUrl.match(/tanishq.co.in/g) ||unshortenedUrl.match(/themancompany.com/g) ||unshortenedUrl.match(/zivame.com/g) ||unshortenedUrl.match(/zoomcar.com/g) ){
+                      }else if(unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/unacademy.com/g) ||unshortenedUrl.match(/coolwinks.com/g) ||unshortenedUrl.match(/orra.co.in/g) ||unshortenedUrl.match(/360totalsecurity.com/g) ||unshortenedUrl.match(/maxbupa.com/g) ||unshortenedUrl.match(/religarehealthinsurance.com/g) ||unshortenedUrl.match(/fnp.com/g) ||unshortenedUrl.match(/healthxp.in/g) ||unshortenedUrl.match(/bigrock.in/g) ||unshortenedUrl.match(/igp.com/g) ||unshortenedUrl.match(/letyshops.com/g) ||unshortenedUrl.match(/spartanpoker.com/g) ||unshortenedUrl.match(/adda52.com/g) ||unshortenedUrl.match(/balaji/g) ||unshortenedUrl.match(/eduonix.com/g) ||unshortenedUrl.match(/paytmmall.com/g) ||unshortenedUrl.match(/testbook.com/g) ||unshortenedUrl.match(/mamaearth.in/g) ||unshortenedUrl.match(/wonderchef.com/g) ||unshortenedUrl.match(/zee5/g) ||unshortenedUrl.match(/beardo.in/g) ||unshortenedUrl.match(/oneplus.in/g) ||unshortenedUrl.match(/1mg.com/g) ||unshortenedUrl.match(/udemy.com/g) ||unshortenedUrl.match(/hometown.in/g) ||unshortenedUrl.match(/magzter.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/ajio.com/g) ||unshortenedUrl.match(/timesprime.com/g)||unshortenedUrl.match(/themomsco.com/g) ||unshortenedUrl.match(/akbartravels.com/g) ||unshortenedUrl.match(/aliexpress.com/g) ||unshortenedUrl.match(/banggood.in/g) ||unshortenedUrl.match(/bata.in/g) ||unshortenedUrl.match(/behrouzbiryani.com/g) ||unshortenedUrl.match(/biba.in/g) ||unshortenedUrl.match(/bigbasket.com/g) ||unshortenedUrl.match(/brandfactoryonline.com/g) ||unshortenedUrl.match(/chumbak.com/g) ||unshortenedUrl.match(/cleartrip.com/g) ||unshortenedUrl.match(/clovia.com/g) ||unshortenedUrl.match(/croma.com/g) ||unshortenedUrl.match(/decathlon.in/g) ||unshortenedUrl.match(/dominos.co.in/g) ||unshortenedUrl.match(/etihad.com/g) ||unshortenedUrl.match(/faasos.io/g) ||unshortenedUrl.match(/fabhotels.com/g) ||unshortenedUrl.match(/firstcry.com/g) ||unshortenedUrl.match(/fossil.com/g) ||unshortenedUrl.match(/harmanaudio.in/g) ||unshortenedUrl.match(/hungama.com/g) ||unshortenedUrl.match(/insider.in/g) ||unshortenedUrl.match(/jockeyindia.com/g) ||unshortenedUrl.match(/kalkifashion.com/g) ||unshortenedUrl.match(/lenskart.com/g) ||unshortenedUrl.match(/lifestylestores.com/g) ||unshortenedUrl.match(/limeroad.com/g) ||unshortenedUrl.match(/manyavar.com/g) ||unshortenedUrl.match(/mcdonaldsindia.com/g) ||unshortenedUrl.match(/medlife.com/g) ||unshortenedUrl.match(/microsoft.com/g) ||unshortenedUrl.match(/mivi.in/g) ||unshortenedUrl.match(/makemytrip.com/g) ||unshortenedUrl.match(/myntra.com/g) ||unshortenedUrl.match(/nnnow.com/g) ||unshortenedUrl.match(/nykaafashion.com/g) ||unshortenedUrl.match(/oyorooms.com/g) ||unshortenedUrl.match(/pepperfry.com/g) ||unshortenedUrl.match(/pizzahut.co.in/g) ||unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/qatarairways.com/g) ||unshortenedUrl.match(/rentomojo.com/g) ||unshortenedUrl.match(/samsung.com/g) ||unshortenedUrl.match(/singaporeair.com/g) ||unshortenedUrl.match(/sochstore.com/g) ||unshortenedUrl.match(/tanishq.co.in/g) ||unshortenedUrl.match(/themancompany.com/g) ||unshortenedUrl.match(/zivame.com/g) ||unshortenedUrl.match(/zoomcar.com/g) ){
                         console.log("2222222222");
                    
                       let sqlssnet = "SELECT * FROM diff_net_posts WHERE active_flag ='TRUE'";
@@ -677,26 +677,85 @@ router.post('/api/automation_posts', function (req, res, next) {
                       }
                       if(tagnot != undefined){
                       example(tagnot.replace(/%25/g,'%'));
-                       }else{
-                        if(urlencode(quelink).match(/flipkart.com/g)){
-                          let finalLink =urlencode(quelink).split('&');
-                          for (let h = 0; h < finalLink.length; h++) {
-                            if(finalLink[h].match(/^affid/g)){
-                              finalLink[h] = 'demoyou'
-                            }else if(finalLink[h].match(/^affExtParam1/g)){
-                              finalLink[h] = 'demoyou'
-                            }
-                          }
-                        let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
-                          tagnot= ("https://linksredirect.com/?cid=76950&subid=kudrat_cl&source=linkkit&url=").concat(encodeURIComponent(sstarget));
-                           example(tagnot);
-                        }
+                      //  }else{
+                      //   if(urlencode(quelink).match(/flipkart.com/g)){
+                      //     let finalLink =urlencode(quelink).split('&');
+                      //     for (let h = 0; h < finalLink.length; h++) {
+                      //       if(finalLink[h].match(/^affid/g)){
+                      //         finalLink[h] = 'demoyou'
+                      //       }else if(finalLink[h].match(/^affExtParam1/g)){
+                      //         finalLink[h] = 'demoyou'
+                      //       }
+                      //     }
+                      //   let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
+                      //     tagnot= ("https://linksredirect.com/?cid=76950&subid=kudrat_cl&source=linkkit&url=").concat(encodeURIComponent(sstarget));
+                      //      example(tagnot);
+                      //   }
                       }
                       async function example(dddd) {
                         let response =await bitly.shorten(dddd);
                       final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
                     }
                   })
+                }else if(unshortenedUrl.match(/flipkart.com/g)){
+                  let tagnotFlipkart;
+                  if(unshortenedUrl.match(/www.flipkart.com/g)){
+                    tagnotFlipkart = unshortenedUrl.replace(/www.flipkart.com/g, 'dl.flipkart.com/dl');
+                  }else{
+                    tagnotFlipkart = unshortenedUrl;
+                  }
+                  if(tagnotFlipkart.match(/[?]/g)){
+                  let finalLink =tagnotFlipkart.split('&');
+                  console.log('finalLink: ', finalLink);
+                  for (let h = 0; h < finalLink.length; h++) {
+                    if(finalLink[h].match(/[?]/g)){
+                      if(finalLink[h].match(/affid/g)){
+                        let finalLinkssd =finalLink[h].split('?');
+                        finalLink[h] = finalLinkssd[0].concat('?')
+                      }else if(finalLink[h].match(/affExtParam1/g)){
+                        let finalLinkssd =finalLink[h].split('?');
+                        finalLink[h] = finalLinkssd[0].concat('?')
+                      } else if(finalLink[h].match(/affExtParam2/g)){
+                        let finalLinkssd =finalLink[h].split('?');
+                        finalLink[h] = finalLinkssd[0].concat('?')
+                      }
+                    }else if(finalLink[h].match(/^affExtParam1/g)){
+                      finalLink[h] = "";
+                    }else if(finalLink[h].match(/^affExtParam2/g)){
+                      finalLink[h] = ""
+                    }else if(finalLink[h].match(/^affid/g)){
+                      finalLink[h] = ""
+                    }
+                  }
+                  var dateObj = new Date();
+                  var month = dateObj.getUTCMonth() + 1; //months from 1-12
+                  var day = dateObj.getUTCDate();
+                  var year = dateObj.getUTCFullYear();
+                  var hour = dateObj.getHours();
+                  var minu = dateObj.getMinutes();
+                  let ren = Math.random().toString(36).substring(7);
+                let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                tagnot= tagnots.concat('&affid=siqra1446').concat('&affExtParam1='+month+day+year+'cl'+hour+minu+ren).concat('&affExtParam2=FK_Kudrat').replace(/(\?&)/g, '?').replace(/&&/g, '&');
+                 console.log('tagnot: ', tagnot);
+                }else{
+                  var dateObj = new Date();
+                        var month = dateObj.getUTCMonth() + 1; //months from 1-12
+                        var day = dateObj.getUTCDate();
+                        var year = dateObj.getUTCFullYear();
+                        var hour = dateObj.getHours();
+                        var minu = dateObj.getMinutes();
+                        let ren = Math.random().toString(36).substring(7);
+                 tagnot= tagnotFlipkart.concat('?affid=siqra1446').concat('&affExtParam1='+month+day+year+'cl'+hour+minu+ren).concat('&affExtParam2=FK_Kudrat');
+                }
+
+                 example(tagnot.replace(/&demoyou/g, '').replace(/%25/g,'%'));
+                    async function example(dddd) {
+                      console.log('dddd: ', dddd);
+                      let response =await bitly.shorten(dddd);
+                    final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    console.log('final[j]: ', final[j]);
+                    //  postImageWidth(response.link,ListflagData.bestshopping_token);
+                  }
                     } else{
                       // console.log("3333333");
                       // tall(unshortenedUrl, {
