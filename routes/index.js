@@ -809,7 +809,8 @@ router.post('/api/automation_posts', function (req, res, next) {
                       .catch(function(err){ console.error('AAAW 👻', err)})
                 }else{
                   // final[j] = array[j].replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/#/g, '').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
-                  final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@frcp_deals/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+//                   final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@frcp_deals/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+               final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@I/g,'').replace(/@i/g,'').replace(/@S/g,'').replace(/@s/g,'').replace(/@f/g,'').replace(/@F/g,'').replace(/(t.me[\/])/g,'').replace(/IHD/g,'').replace(/t.me/g,'').replace(/@frcp_deals/g,' ').replace(/@IHDBROADCAST/g,' ').replace(/@IHDBroadcast/g,' ').replace(/IHDBROADCAST/g,' ').replace(/@stg003/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g,'').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
                 }
               }
                setTimeout(()=>{
