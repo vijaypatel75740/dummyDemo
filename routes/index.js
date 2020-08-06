@@ -826,6 +826,26 @@ router.post('/api/automation_posts', function (req, res, next) {
                             example2(tagnot.replace(/%25/g,'%'));
                           }
                         }
+                        }else if(ListflagData.flipkart_server == 'inrdeal'){
+                          let finalLink =urlencode(quelink).split('&');
+                          for (let h = 0; h < finalLink.length; h++) {
+                            if(finalLink[h].match(/^affid/g)){
+                              finalLink[h] = 'demoyou'
+                            }else if(finalLink[h].match(/^affExtParam1/g)){
+                              finalLink[h] = 'demoyou'
+                            }
+                          }
+                        let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
+                          tagnot= ("https://inr.deals/track?id=jig616926125&src=merchant-detail-backend&campaign=cps&url=").concat(encodeURIComponent(sstarget));
+                           if(ListflagData.bitlyFlag == "True"){ 
+                            example1(tagnot.replace(/%25/g,'%'));
+                        }else{
+                          if(tagnot.match(/flipkart.com/g)){
+                            example4(tagnot.replace(/%25/g,'%'));
+                          }else{
+                            example2(tagnot.replace(/%25/g,'%'));
+                          }
+                        }
                         }
                       }
                     }
