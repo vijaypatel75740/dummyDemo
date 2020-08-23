@@ -467,14 +467,14 @@ function urlencode(str) {
 //               let final =[];
 //               let array = req.body.convertText.split("\n");
 //                for (let j = 0; j < array.length; j++) {
-//                 if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
+//                 if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,!&\/\/=]+)/g)){
 //                   let xzhxzh;
 //                     if(array[j].match(/amazon.in/g)){
 //                      xzhxzh = array[j].replace(/[[\]]/g,'').replace(/ /g, '@')
 //                     }else{
 //                     xzhxzh = array[j]
 //                     }
-//                   let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
+//                   let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,!&\/\/=]+)/g)
 //                      tall(urls[0], {
 //                       method: 'HEAD',
 //                       maxRedirect: 5
@@ -622,14 +622,14 @@ router.post('/api/automation_posts', function (req, res, next) {
               let final =[];
               let array = req.body.convertText.split("\n");
                for (let j = 0; j < array.length; j++) {
-                      if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
+                      if(array[j].match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,!&\/\/=]+)/g)){
                         let xzhxzh;
                           if(array[j].match(/amazon.in/g)){
                            xzhxzh = array[j].replace(/[[]]/g,'').replace(/[[\]]/g,'').replace(/ /g, '@')
                           }else{
                           xzhxzh = array[j].replace(/[[]]/g,'')
                           }
-                        let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)
+                        let urls = xzhxzh.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,!&\/\/=]+)/g)
                       unshort(urls[0]).then(function(unshortenedUrls){ 
                         let unshortenedUrl = unshortenedUrls.unshorten.replace(/&amp;/g,'&');
                       console.log('unshortenedUrlsssssss: ', unshortenedUrl);
