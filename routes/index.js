@@ -812,7 +812,9 @@ router.post('/api/automation_posts', function (req, res, next) {
                               finalLink[h] = ""
                             }else if(finalLink[h].match(/^affid/g)){
                               finalLink[h] = ""
-                            }
+                            }else if(finalLink[h].match(/^param/g)){
+                                  finalLink[h] = ""
+                               }
                           }
                           var dateObj = new Date();
                           var month = dateObj.getUTCMonth() + 1; //months from 1-12
@@ -851,7 +853,9 @@ router.post('/api/automation_posts', function (req, res, next) {
                               finalLink[h] = 'demoyou'
                             }else if(finalLink[h].match(/^affExtParam1/g)){
                               finalLink[h] = 'demoyou'
-                            }
+                            }else if(finalLink[h].match(/^param/g)){
+                                  finalLink[h] = 'demoyou'
+                                }
                           }
                         let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
                           tagnot= ("https://linksredirect.com/?cid=76950&subid=kudrat_cl&source=linkkit&url=").concat(encodeURIComponent(sstarget));
@@ -871,7 +875,9 @@ router.post('/api/automation_posts', function (req, res, next) {
                               finalLink[h] = 'demoyou'
                             }else if(finalLink[h].match(/^affExtParam1/g)){
                               finalLink[h] = 'demoyou'
-                            }
+                            }else if(finalLink[h].match(/^param/g)){
+                                  finalLink[h] = 'demoyou'
+                                }
                           }
                         let sstarget= finalLink.join('&').replace(/&demoyou/g, '');
                           tagnot= ("https://inr.deals/track?id=jig616926125&src=merchant-detail-backend&campaign=cps&url=").concat(encodeURIComponent(sstarget));
