@@ -429,8 +429,15 @@ router.get('/api/singlepostFlags', function (req, res) {
 router.post('/api/editFlipkartFlags', function (req, res) {
   async.waterfall([
     function (nextCall) {
-      values =  [ req.body.defaultChoice ]
-      var sqlss = "UPDATE post_flags set flipkart_server =? WHERE id = 1";
+      let values;
+      let sqlss;
+      if(req.body.value == 'dirflipkart'){
+        values =  [ req.body.value, req.body.tag]
+        sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =? WHERE id = 1";
+      }else{
+        values =  [ req.body.value ]
+        sqlss = "UPDATE post_flags set flipkart_server =? WHERE id = 1";
+      }
       connection.query(sqlss, values, function (err, rides) {
         if (err) {
           return nextCall({
