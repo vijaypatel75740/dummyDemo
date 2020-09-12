@@ -18,192 +18,7 @@ var isLoggedInPolicie = require('../policies/isLoggedIn.js');
 var isUserAuthenticatedPolicy = require('../policies/isUserAuthenticated.js');
 var jwt = require('jsonwebtoken');
 const unshort = require('url-unshorten');
-var moment = require('moment');
 
-
-setInterval( function setup() {
-  let sqlsss = "SELECT * FROM post_flags";
-  connection.query(sqlsss, function (err, tagChangeRandom) {
-    console.log('tagChangeRandom: ', tagChangeRandom[0].tag_switch);
-    var a = moment().utcOffset("+05:30").format("HH:mm");
-    console.log('a: ', a);
-    if((tagChangeRandom[0].tag_switch == "1") &&  (a == "02:00"||a == "04:00"||a == "06:00"||a == "08:00"||a == "10:00"||a == "12:00"||a == "14:00"||a == "16:00"||a == "18:00"||a == "20:00"||a == "22:00"||a == "23:59") ){
-      console.log("a");
-      tagChangeRandom(tagChangeRandom);
-    }else{
-      console.log("b");
-    }
-    if (err) {
-      console.log('err: ', err);
-    }
-      })
-}, 19000)
-
-
-function tagChangeRandoms(AmazonMsg){
-  let sqlsss = "SELECT tag_name FROM tag_amazon";
-  connection.query(sqlsss, function (err, flagData) {
-    console.log('flagData: ', flagData);
-    if (err) {
-      console.log('err: ', err);
-    }
-  const months = flagData;
-  const randomMonth = months[Math.floor(Math.random() * months.length)];
-  console.log('randomMonth: ', randomMonth.tag_name);
- 
-  tagChangeRandomsUpdate(randomMonth.tag_name);
-   let requestHeaders1 = {
-      "Content-Type": "application/json",
-      "accept": "application/json"
-    }
-    let linkRequest1 = {
-      "org_post_tag": randomMonth.tag_name
-    }
-    request({
-      uri: "https://postmanual.herokuapp.com/tagChangePostAmazon",
-      method: "POST",
-      body: JSON.stringify(linkRequest1),
-      headers: requestHeaders1
-    }, (err, response, body) => {
-      console.log('body: ', body);
-      let link = JSON.parse(body);
-    })
-})
-}
-
-function tagChangeRandomsUpdate(AmazonMsg){
-values =  [
-  AmazonMsg
-]
-var sqlss = "UPDATE post_flags set org_post_tag =? WHERE id = 1";
-connection.query(sqlss, values, function (err, rides) {
-  
-if (err) {
-  console.log('err: ', err);
-}
-})
-}
-
-router.get('/api/listTagData', function (req, res) {
-  async.waterfall([
-    function (nextCall) {
-      var sqlss = " SELECT * FROM tag_amazon";
-      connection.query(sqlss, function (err, rides) {
-        // console.log('rides: ', _.last(rides));
-        if (err) {
-          return nextCall({
-            "message": "something went wrong",
-          });
-        }
-        nextCall(null, rides);
-      })
-    }
-  ], function (err, response) {
-    if (err) {
-      return res.send({
-        status: err.code ? err.code : 400,
-        message: (err && err.msg) || "someyhing went wrong"
-      });
-    }
-    return res.send({
-      status: 200,
-      message: "Single recored sucessfully",
-      data: response
-    });
-  });
-});
-
-router.delete('/api/deleteTagData/:id', function (req, res) {
-  async.waterfall([
-    function (nextCall) {
-      var sqlss = " DELETE FROM tag_amazon WHERE id =" + req.params.id;
-      connection.query(sqlss, function (err, rides) {
-        if (err) {
-          return nextCall({
-            "message": "something went wrong",
-          });
-        }
-        nextCall(null, rides[0]);
-      })
-    }
-  ], function (err, response) {
-    if (err) {
-      return res.send({
-        status: err.code ? err.code : 400,
-        message: (err && err.msg) || "someyhing went wrong"
-      });
-    }
-    return res.send({
-      status: 200,
-      message: "deleted recored sucessfully",
-      data: response
-    });
-  });
-});
-
-router.post('/api/tagChangePostFlags', function (req, res) {
-  async.waterfall([
-    function (nextCall) {
-      values =  [
-                   req.body.tag_switch,
-                   req.body.org_post_tag,
-                ]
-      var sqlss = "UPDATE post_flags set tag_switch =? ,org_post_tag =? WHERE id = 1";
-      connection.query(sqlss, values, function (err, rides) {
-        if (err) {
-          return nextCall({
-            "message": "something went wrong",
-          });
-        }
-        nextCall(null, rides[0]);
-      })
-    }
-  ], function (err, response) {
-    if (err) {
-      return res.send({
-        status: err.code ? err.code : 400,
-        message: (err && err.msg) || "someyhing went wrong"
-      });
-    }
-    return res.send({
-      status: 200,
-      message: "Edit post flag update sucessfully",
-      data: response
-    });
-  });
-});
-
-router.post('/api/addTagData', function (req, res) {
-  async.waterfall([
-    function (nextCall) {
-      values =   [ [
-                   req.body.sNLink
-                ] ]
-      let sqlss = "INSERT INTO tag_amazon (tag_name) VALUES ?";
-      console.log('sqlss: ', sqlss);
-      connection.query(sqlss, [values], function (err, rides) {
-        if (err) {
-          return nextCall({
-            "message": "something went wrong",
-          });
-        }
-        nextCall(null, rides);
-      })
-    }
-  ], function (err, response) {
-    if (err) {
-      return res.send({
-        status: err.code ? err.code : 400,
-        message: (err && err.msg) || "someyhing went wrong"
-      });
-    }
-    return res.send({
-      status: 200,
-      message: "add token sucessfully",
-      data: response
-    });
-  });
-});
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -830,16 +645,17 @@ router.post('/api/automation_posts', function (req, res, next) {
                       if(unshortenedUrl.match(/earnkaro/g)){
                         let finalLink =unshortenedUrl.split('dl=');
                          if(conurlencode(finalLink[1]).match(/[?]/g)){
-                          tagnot= conurlencode(finalLink[1]).concat('&tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                          tagnot= conurlencode(finalLink[1]).concat('&tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+//                           tagnot= conurlencode(finalLink[1]).concat('&tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                         }else{
-                          tagnot= conurlencode(finalLink[1]).concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                          tagnot= conurlencode(finalLink[1]).concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                         }
                       }else if(unshortenedUrl.match(/paisawapas/g)){
                           let finalLink =unshortenedUrl.split('url=');
                            if(conurlencode(finalLink[1]).match(/[?]/g)){
-                            tagnot= conurlencode(finalLink[1]).concat('&tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                            tagnot= conurlencode(finalLink[1]).concat('&tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                           }else{
-                            tagnot= conurlencode(finalLink[1]).concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                            tagnot= conurlencode(finalLink[1]).concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                           }
                     }else{
                     if(unshortenedUrl.match(/[?]/g)){
@@ -872,14 +688,14 @@ router.post('/api/automation_posts', function (req, res, next) {
                       }
                      
                     let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
-                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+req.body.postTagId+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+ListflagData.org_post_tag+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                      if(tagnotRep.charAt(tagnotRep.length-1) == '&'){
                       tagnot= tagnotRep.slice(0, -1);
                      }else{
                       tagnot= tagnotRep;
                      }
                     }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                     }
                   }
                     if(req.body.bitlyFlag){ 
@@ -1168,14 +984,14 @@ router.post('/api/automation_posts', function (req, res, next) {
                       }
                      
                     let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
-                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+req.body.postTagId+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+ListflagData.org_post_tag+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                      if(tagnotRep.charAt(tagnotRep.length-1) == '&'){
                       tagnot= tagnotRep.slice(0, -1);
                      }else{
                       tagnot= tagnotRep;
                      }
                     }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                     }
                    example(tagnot.replace(/&demoyou/g, ''));
                    if(req.body.bitlyFlag){ 
