@@ -1584,15 +1584,15 @@ let linkRequest1;
 }
 }
 
-setInterval( function setup() {
-  let sqlsss = "SELECT COUNT(*) as cnt FROM post_flags";
-  connection.query(sqlsss, function (err, flagData) {
-    console.log('flagData: ', flagData[0].cnt);
-    if (err) {
-      console.log('err: ', err);
-    }
-      })
-}, 19000)
+// setInterval( function setup() {
+//   let sqlsss = "SELECT COUNT(*) as cnt FROM post_flags";
+//   connection.query(sqlsss, function (err, flagData) {
+//     console.log('flagData: ', flagData[0].cnt);
+//     if (err) {
+//       console.log('err: ', err);
+//     }
+//       })
+// }, 19000)
 
 
 
