@@ -1313,19 +1313,37 @@ function whatsapp_posts1(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
   for (let i = 0; i < arrayGroupNumber.length; i++) {
     var ggff = urlencodedd(AmazonMsg);
     if(ggff != 'null' && ggff != 'undefined' ){
-    let requestHeaders1 = {
+//     let requestHeaders1 = {
+//       "Content-Type": "application/json",
+//       "accept": "application/json",
+//       "x-maytapi-key": Amznapi
+//     }
+// let linkRequest1;
+//   linkRequest1 = {
+//     "to_number": arrayGroupNumber[i].id,
+//     "type": "text",
+//     "message": randomMonth + ggff
+//   }
+//     request({
+//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+//       method: "POST",
+//       body: JSON.stringify(linkRequest1),
+//       headers: requestHeaders1
+//     }, (err, response, body) => {
+//       let link = JSON.parse(body);
+//     })
+	    
+   let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json",
-      "x-maytapi-key": Amznapi
+      "accept": "application/json"
     }
 let linkRequest1;
   linkRequest1 = {
-    "to_number": arrayGroupNumber[i].id,
-    "type": "text",
-    "message": randomMonth + ggff
+    "chatId": arrayGroupNumber[i].id,
+    "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+      uri: "https://api.chat-api.com/instance176269/sendMessage?token=88yhryj1dpgdj17k",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
