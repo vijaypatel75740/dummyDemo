@@ -1524,6 +1524,7 @@ let linkRequest1;
     linkRequest1 = {
       "chatId": arrayGroupNumber[i].id,
       "body": AmazonPhoto,
+      "filename":"jkjjjk.jpg",
       "caption": randomMonth + ggff
     }
     request({
