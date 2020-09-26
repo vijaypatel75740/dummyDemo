@@ -8,7 +8,7 @@ let request = require("request");
 var config = require('../config/global');
 var connection = require('../config/connection');
 const BitlyClient = require('bitly').BitlyClient;
-const bitly = new BitlyClient('d10f8d72343ef254f7251780cbdcc0006fda0bb0');
+// const bitly = new BitlyClient('d10f8d72343ef254f7251780cbdcc0006fda0bb0');
 var tall = require('tall').default;
 const axios = require('axios');
 var textVersion = require("textversionjs");
@@ -899,6 +899,8 @@ router.post('/api/automation_posts', function (req, res, next) {
                 console.log('err: ', err);
               }
               let ListflagData = flagData[0];
+	      let bitly = new BitlyClient(ListflagData.current_bitly);
+
               let final =[];
               let array = req.body.convertText.split("\n");
                for (let j = 0; j < array.length; j++) {
