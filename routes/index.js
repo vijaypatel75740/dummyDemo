@@ -26,10 +26,10 @@ setInterval( function setup() {
   connection.query(sqlsss, function (err, tagChangeRandom) {
     console.log('tagChangeRandom: ', tagChangeRandom[0].tag_switch);
     var a = moment().utcOffset("+05:30").format("HH:mm");
-    console.log('a: ', a);
     if((tagChangeRandom[0].tag_switch == "1") &&  (a == "02:00"||a == "04:00"||a == "06:00"||a == "08:00"||a == "10:00"||a == "12:00"||a == "14:00"||a == "16:00"||a == "18:00"||a == "20:00"||a == "22:00"||a == "23:59") ){
       console.log("a");
       tagChangeRandoms(tagChangeRandom);
+      bitlyCheckCount(tagChangeRandom[0].current_bitly);
     }else{
       console.log("b");
     }
@@ -39,7 +39,95 @@ setInterval( function setup() {
       })
 }, 19000)
 
+function bitlyCheckCount(bitlyName){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json",
+    "authorization": bitlyName
+  }
+  request({
+    uri: "https://api-ssl.bitly.com/v4/user",
+    method: "GET",
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    let link = JSON.parse(body);
+    bitlyCountNumber(bitlyName,link.default_group_guid);
+  })
+}
 
+function bitlyCountNumber(bitlyName,Tag){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json",
+    "authorization": bitlyName
+  }
+  request({
+    uri: "https://api-ssl.bitly.com/v4/groups/"+Tag+"/shorten_counts",
+    method: "GET",
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    var date = new Date().getMonth()+1;
+    let link = JSON.parse(body);
+    var total = 0;
+      for (var i = 0; i < link.metrics.length; i++) {
+        if(new Date(link.metrics[i].key).getMonth()+1 == date){
+          total = total + link.metrics[i].value;
+        }
+      }
+      if(total > 250){
+       bitlyChangeNew(bitlyName);
+      }
+  })
+}
+
+function bitlyChangeNew(AmazonMsg){
+  values =  [ AmazonMsg]
+  var sqlss = "UPDATE bitly_token set status = 0 WHERE token ='"+AmazonMsg+"'";
+  connection.query(sqlss, values, function (err, rides1) {
+  if (err) {
+    console.log('err: 1', err);
+  }else{
+    var sqls = " SELECT * FROM bitly_token WHERE status = 1 ";
+    connection.query(sqls, function (err, rides2) {
+    if (err) {
+      console.log('err:2 ', err);
+    }else{
+      if(rides2.length > 0){ 
+      bitluUpdateIhd(rides2[0].token);
+      values3 =  [
+        rides2[0].token
+      ]
+      var sql = "UPDATE post_flags set current_bitly =? WHERE id = 1";
+      connection.query(sql, values3, function (err, rides) {
+      if (err) {
+        console.log('err:3 ', err);
+      }
+      })
+    }
+    }
+    })
+  }
+  })
+  }
+
+function bitluUpdateIhd(AmazonMsg){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json"
+  }
+  let linkRequest1 = {
+    "org_post_tag": AmazonMsg
+  }
+  request({
+    uri: "https://postmanual1.herokuapp.com/bitlyChangePostAmzn",
+    method: "POST",
+    body: JSON.stringify(linkRequest1),
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    console.log('body: ', body);
+    let link = JSON.parse(body);
+  })
+}
 function tagChangeRandoms(AmazonMsg){
   let sqlsss = "SELECT tag_name FROM tag_amazon";
   connection.query(sqlsss, function (err, flagData) {
@@ -60,7 +148,7 @@ function tagChangeRandoms(AmazonMsg){
       "org_post_tag": randomMonth.tag_name
     }
     request({
-      uri: "https://postmanual.herokuapp.com/tagChangePostAmazon",
+      uri: "https://postmanual1.herokuapp.com/tagChangePostAmazon",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
