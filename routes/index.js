@@ -1433,7 +1433,7 @@ let linkRequest1;
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/instance183291/sendMessage?token=80w8nmty4c59q3rf",
+      uri: "https://api.chat-api.com/instance183756/sendMessage?token=zswt8x3h89x7y651",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1533,7 +1533,7 @@ let linkRequest1;
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/instance183303/sendMessage?token=gvdwlbe9w9hy5bab",
+      uri: "https://api.chat-api.com/instance183754/sendMessage?token=4xyzd45g0ws7o0d6",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1635,7 +1635,7 @@ let linkRequest1;
       "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.chat-api.com/instance183291/sendFile?token=80w8nmty4c59q3rf",
+      uri: "https://api.chat-api.com/instance183756/sendFile?token=zswt8x3h89x7y651",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1737,7 +1737,7 @@ let linkRequest1;
       "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.chat-api.com/instance183303/sendFile?token=gvdwlbe9w9hy5bab",
+      uri: "https://api.chat-api.com/instance183754/sendFile?token=4xyzd45g0ws7o0d6",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
