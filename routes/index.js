@@ -705,8 +705,11 @@ router.post('/api/editFlipkartFlags', function (req, res) {
       let values;
       let sqlss;
       if(req.body.value == 'dirflipkart'){
-        values =  [ req.body.value, req.body.tag]
-        sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =? WHERE id = 1";
+//         values =  [ req.body.value, req.body.tag]
+//         sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =? WHERE id = 1";
+        values =  [ req.body.value, req.body.tag , "93e64cf259529bbea449b49afbb93dd8819aa6f6"]
+        sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =?,current_bitly  =? WHERE id = 1";
+     
       }else{
         values =  [ req.body.value ]
         sqlss = "UPDATE post_flags set flipkart_server =? WHERE id = 1";
