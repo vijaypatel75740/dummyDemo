@@ -27,7 +27,7 @@ var server = http.createServer(app);
  */
 
  server.listen(port, () => {
-     wakeDyno({url:'https://nodepanel3.herokuapp.com/',interval: 250000}).start(); // DYNO_URL should be the url of your Heroku app
+     wakeDyno({url:'https://nodepanel4.herokuapp.com/',interval: 250000}).start(); // DYNO_URL should be the url of your Heroku app
  });
 //server.listen(port);
 server.on('error', onError);
