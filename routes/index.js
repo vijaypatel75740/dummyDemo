@@ -28,8 +28,8 @@ setInterval( function setup() {
     var a = moment().utcOffset("+05:30").format("HH:mm");
     if((tagChangeRandom[0].tag_switch == "1") &&  (a == "02:00"||a == "04:00"||a == "06:00"||a == "08:00"||a == "10:00"||a == "12:00"||a == "14:00"||a == "16:00"||a == "18:00"||a == "20:00"||a == "22:00"||a == "23:59") ){
       console.log("a");
-      tagChangeRandoms(tagChangeRandom);
-      bitlyCheckCount(tagChangeRandom[0].current_bitly);
+//       tagChangeRandoms(tagChangeRandom);
+//       bitlyCheckCount(tagChangeRandom[0].current_bitly);
     }else{
       console.log("b");
     }
