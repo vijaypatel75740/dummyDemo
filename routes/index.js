@@ -205,7 +205,7 @@ router.get('/api/listTagData', function (req, res) {
   });
 });
 
-router.post('/bitlyChangePostAmzn1', function (req, res) {
+router.post('/api/bitlyChangePostAmzn1', function (req, res) {
   async.waterfall([
     function (nextCall) {
       values =  [
