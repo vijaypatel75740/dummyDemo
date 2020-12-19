@@ -205,6 +205,36 @@ router.get('/api/listTagData', function (req, res) {
   });
 });
 
+router.post('/bitlyChangePostAmzn1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      values =  [
+                   req.body.org_post_tag
+                ]
+      var sqlss = "UPDATE post_flags set current_bitly =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+  });
 router.delete('/api/deleteTagData/:id', function (req, res) {
   async.waterfall([
     function (nextCall) {
