@@ -1910,6 +1910,136 @@ router.post('/api/unconvert_posts', function (req, res, next) {
   })
 })
 
+router.post('/api/unconvert_audio_posts', function (req, res, next) {
+  async.waterfall([
+    function (nextCall) {
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
+              }
+              let ListflagData = flagData[0];
+                 let finalAmazon = req.body.convertText;
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                let finalIdList = JSON.parse(ListflagData.array_data).user;
+                   if(req.body.postImg != ""){
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoAudioPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                     whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId); 
+                 }
+                    }else{
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                    whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
+                   }
+                }
+              //   if(req.body.postImg != ""){
+              //   teleAutoAudioPostChannel(finalAmazon,req.body.postImg,'@savekaro01',ListflagData.kudart_token);
+              // }else{
+              //       teleAutoname(finalAmazon,'@savekaro01',ListflagData.kudart_token);
+              //      }
+              nextCall(null, urlencodedd(finalAmazon));
+              })
+            }
+    ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status_code: 200,
+      message: "telegrame post create sucessfully",
+      data: response
+    });
+  })
+})
+
+router.post('/api/unconvert_video_posts', function (req, res, next) {
+  async.waterfall([
+    function (nextCall) {
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
+              }
+              let ListflagData = flagData[0];
+                 let finalAmazon = req.body.convertText;
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                let finalIdList = JSON.parse(ListflagData.array_data).user;
+                   if(req.body.postImg != ""){
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoVideoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                     whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId); 
+                 }
+                    }else{
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                    whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
+                   }
+                }
+              //   if(req.body.postImg != ""){
+              //   teleAutoVideoPostChannel(finalAmazon,req.body.postImg,'@savekaro01',ListflagData.kudart_token);
+              // }else{
+              //       teleAutoname(finalAmazon,'@savekaro01',ListflagData.kudart_token);
+              //      }
+              nextCall(null, urlencodedd(finalAmazon));
+              })
+            }
+    ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status_code: 200,
+      message: "telegrame post create sucessfully",
+      data: response
+    });
+  })
+})
+
+function teleAutoVideoPostChannel(finalAmazon,img,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendVideo(chatId, img, {
+    caption: finalAmazon,
+    disable_web_page_preview: true
+  });
+}
+
+function teleAutoAudioPostChannel(finalAmazon,img,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendAudio(chatId, img, {
+    caption: finalAmazon,
+    disable_web_page_preview: true
+  });
+}
+
 function teleAutoPostChannel(finalAmazon,img,chanelName,token){
   var chatId = chanelName; // <= replace with yours
   bot = new nodeTelegramBotApi(token);
