@@ -1522,7 +1522,7 @@ function whatsapp_posts1(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
       "accept": "application/json"
     }
  let klkuri= "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid;
-	    console.log('my111',klkuri);
+	
 let linkRequest1;
   linkRequest1 = {
     "chatId": arrayGroupNumber[i].id,
@@ -1534,8 +1534,7 @@ let linkRequest1;
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
     }, (err, response, body) => {
-	     console.log('my222',body)
-	     console.log('my333',err)
+	    
       let link = JSON.parse(body);
 	    
     })
