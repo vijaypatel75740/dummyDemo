@@ -1527,7 +1527,7 @@ let linkRequest1;
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+ Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1627,7 +1627,7 @@ let linkRequest1;
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+ Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1729,7 +1729,7 @@ let linkRequest1;
       "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+ Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1831,7 +1831,7 @@ let linkRequest1;
       "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+ Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
