@@ -1521,15 +1521,14 @@ function whatsapp_posts1(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
       "Content-Type": "application/json",
       "accept": "application/json"
     }
- let klkuri= "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid;
-	
+ 	
 let linkRequest1;
   linkRequest1 = {
     "chatId": arrayGroupNumber[i].id,
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1631,7 +1630,7 @@ let linkRequest1;
     "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
