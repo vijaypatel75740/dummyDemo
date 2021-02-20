@@ -205,6 +205,39 @@ router.get('/api/listTagData', function (req, res) {
   });
 });
 
+router.post('/api/WhatsAppUpdate1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      console.log('req.body: ', req.body);
+
+      values =  [
+                   JSON.stringify(req.body)
+                ]
+      var sqlss = "UPDATE post_flags set array_data =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+});
+
 router.post('/api/bitlyChangePostAmzn1', function (req, res) {
   async.waterfall([
     function (nextCall) {
