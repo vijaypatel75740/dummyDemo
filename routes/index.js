@@ -37,11 +37,96 @@ setInterval( function setup() {
     }else{
       console.log("b");
     }
+    var current_mili = Date.now();
+    if(tagChangeRandom[0].autopost_flag_tele == 1){
+      if(Number(current_mili) >= Number(tagChangeRandom[0].last_interval_mili)){
+        console.log("22222");
+        teleAutoDemo(tagChangeRandom[0]);
+      }
+    }
     if (err) {
       console.log('err: ', err);
     }
       })
 }, 19000)
+
+function teleAutoDemo (data) {
+  var sqls = " SELECT * FROM post_telegram3 WHERE post_status = 1 LIMIT 1";
+    connection.query(sqls, function (err, rides2) {
+    if (err) {
+      console.log('err:1 ', err);
+    }else{
+      if(rides2.length > 0){ 
+        autoUpdatePost(rides2[0].post_asin,data);
+        var token_data = Date.now() + (data.delay*6000)
+        values3 =  [token_data]
+        var sql = "UPDATE post_flags set last_interval_mili =? WHERE id = 1";
+        connection.query(sql, values3, function (err, rides) {
+          if (err) {
+            console.log('err:3 ', err);
+          }
+        })
+        var sqls1 = "UPDATE post_telegram3 set post_status = 0 WHERE post_asin ='"+rides2[0].post_asin+"'";
+        connection.query(sqls1, function (err, rides8) {
+          if (err) {
+            console.log('err:3 ', err);
+          }
+        })
+       }
+    }
+  })
+}
+
+function autoUpdatePost(post_link2,ListflagData) {
+  axios('https://www.amazon.in/dp/'+post_link2)
+      .then(response => {
+          var html = response.data;
+          var $ = cheerio.load(html);
+          var matchObj = [];
+          var post_title = $('#productTitle').text().trim();
+          console.log('post_title: ', post_title);
+          var siteheadidsdng = $('.imgTagWrapper').find('img').attr('data-old-hires');
+          var post_regularPrice = $('.priceBlockStrikePriceString').text().trim();
+          console.log('post_regularPrice: ', post_regularPrice);
+          var post_sellPrice = $('#priceblock_ourprice').text().trim();
+          console.log('post_sellPrice: ', post_sellPrice);
+          var savepercent = $('.priceBlockSavingsString').text().replace(/\s\s+/g, '');
+          console.log('savepercent: ', savepercent);
+          var savepercentage = $('.priceBlockSavingsString').text().match(/\(([^)]+)\)/);
+          console.log('savepercentage: ', savepercentage);
+          var siteTitle = $('.priceBlockDealPriceString').text().replace(/\s\s+/g, '');
+          console.log('siteTitle: ', siteTitle);
+          var avilabilty = $('#availability').find('span').text().trim();
+          console.log('avilabilty: ', avilabilty);
+          var post_link = 'https://www.amazon.in/dp/'+post_link2+'?tag=salebaba-21';
+
+          if(siteheadidsdng && post_title && post_link){
+              var chatId = '@onlywomensworld'; // <= replace with yours
+              var html;
+              if(post_regularPrice && post_sellPrice){ 
+               html = '🛍 ' + post_title + '\n\n' +
+                '✅ <b style="background-color:red;">Deal Price : </b> ' + post_sellPrice + '\n' +
+                '❌ <b>M.R.P. : </b> ' + post_regularPrice + '\n\n' +
+                '👉 <a href="' + post_link + '">' + post_link + '</a>\n' ;
+              console.log('html: ', html);
+              if (html) {
+               finalPostList = JSON.parse(ListflagData.amzn_tele_value).telenogroup;
+               for (let l = 0; l < finalPostList.length; l++) {
+                bot = new nodeTelegramBotApi(ListflagData.kudart_token);
+                bot.sendPhoto(finalPostList[l].groupname, siteheadidsdng, {
+                  caption: html,
+                  parse_mode: "HTML",
+                  disable_web_page_preview: true,
+                });
+              }
+            }
+          }
+        }else{
+            console.log("no---");
+          }
+      })
+      .catch(console.error);
+    }
 
 function bitlyCheckCount(bitlyName){
   let requestHeaders1 = {
