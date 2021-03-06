@@ -58,7 +58,7 @@ function teleAutoDemo (data) {
     }else{
       if(rides2.length > 0){ 
         autoUpdatePost(rides2[0].post_asin,data);
-        var token_data = Date.now() + (data.delay*6000)
+        var token_data = Date.now() + (data.delay*60000)
         values3 =  [token_data]
         var sql = "UPDATE post_flags set last_interval_mili =? WHERE id = 1";
         connection.query(sql, values3, function (err, rides) {
