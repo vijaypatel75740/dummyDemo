@@ -208,7 +208,7 @@ function bitluUpdateIhd(AmazonMsg){
     "org_post_tag": AmazonMsg
   }
   request({
-    uri: "https://postmanual6.herokuapp.com/bitlyChangePostAmzn",
+    uri: "https://postmanual7.herokuapp.com/bitlyChangePostAmzn",
     method: "POST",
     body: JSON.stringify(linkRequest1),
     headers: requestHeaders1
@@ -237,7 +237,7 @@ function tagChangeRandoms(AmazonMsg){
       "org_post_tag": randomMonth.tag_name
     }
     request({
-      uri: "https://postmanual6.herokuapp.com/tagChangePostAmazon",
+      uri: "https://postmanual7.herokuapp.com/tagChangePostAmazon",
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
