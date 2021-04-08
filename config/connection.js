@@ -8,12 +8,19 @@ var mysql  = require('mysql');
 //   database:'PM04XO3vrq'
 // };
 
+// var db_config = {
+//     host     : 'remotemysql.com',
+//     user     : 'oQP5gUwBbe',
+//     password : 'Bxer38fbP2',
+//     database:'oQP5gUwBbe'
+//   };
+
 var db_config = {
-    host     : 'remotemysql.com',
-    user     : 'oQP5gUwBbe',
-    password : 'Bxer38fbP2',
-    database:'oQP5gUwBbe'
-  };
+  host     : 'sql6.freesqldatabase.com',
+  user     : 'sql6404256',
+  password : 'MssjIJyHqa',
+  database:'sql6404256'
+};
 
 //- Create the connection variable
 var connection = mysql.createConnection(db_config);
