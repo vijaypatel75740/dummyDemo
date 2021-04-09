@@ -144,6 +144,42 @@ function bitlyCheckCount(bitlyName){
   })
 }
 
+router.get('/api/singlepostFlags1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      let requestHeaders1 = {
+        "Content-Type": "application/json",
+        "accept": "application/json"
+      }
+      request({
+        uri: "https://postmanual7.herokuapp.com/singlepostFlags",
+        method: "GET",
+        headers: requestHeaders1
+      }, (err, response, body) => {
+        if(err){
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }else{
+        nextCall(null, JSON.parse(body).data);
+         }
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Single recored sucessfully",
+      data: response
+    });
+  });
+});
+
 function bitlyCountNumber(bitlyName,Tag){
   let requestHeaders1 = {
     "Content-Type": "application/json",
