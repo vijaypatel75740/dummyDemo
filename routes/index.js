@@ -1680,53 +1680,33 @@ function whatsapp_posts1(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
  
   const months = ["🛍 ", "🛒 ", "🔥 ", "💰 ", "🛍️ ", "🤑 ", "🏷️ ", "💳 ", "🎟️ ","📦 ","😍 ","🕯 ","🍂 ","🎌 ","👑 ","🎊 ","🐦 ","⛄ "];
   const randomMonth = months[Math.floor(Math.random() * months.length)];
- 
-  for (let i = 0; i < arrayGroupNumber.length; i++) {
-    var ggff = urlencodedd(AmazonMsg);
-    if(ggff != 'null' && ggff != 'undefined' ){
-//     let requestHeaders1 = {
-//       "Content-Type": "application/json",
-//       "accept": "application/json",
-//       "x-maytapi-key": Amznapi
-//     }
-// let linkRequest1;
-//   linkRequest1 = {
-//     "to_number": arrayGroupNumber[i].id,
-//     "type": "text",
-//     "message": randomMonth + ggff
-//   }
-//     request({
-//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
-//       method: "POST",
-//       body: JSON.stringify(linkRequest1),
-//       headers: requestHeaders1
-//     }, (err, response, body) => {
-//       let link = JSON.parse(body);
-//     })
-	    
-   let requestHeaders1 = {
-      "Content-Type": "application/json",
-      "accept": "application/json"
-    }
- 	
-let linkRequest1;
-  linkRequest1 = {
-    "chatId": arrayGroupNumber[i].id,
-    "body": randomMonth + ggff
+
+for (let i = 0; i < arrayGroupNumber.length; i++) {
+	  var ggff = urlencodedd(AmazonMsg);
+	  if(ggff != 'null' && ggff != 'undefined' ){
+      let requestHeaders1 = {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      }
+
+       let linkRequest1 = {
+          "number": arrayGroupNumber[i].id,
+          "message": randomMonth + ggff
+        }
+    
+	  request({
+            uri: "https://wpqrcode1.herokuapp.com/send-message",
+	    method: "POST",
+	    body: JSON.stringify(linkRequest1),
+	    headers: requestHeaders1
+	  }, (err, response, body) => {
+		  console.log('sss',body);
+		  console.log('errrr',err);
+	    let link = JSON.parse(body);
+	  })
+	}
+	}
   }
-    request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
-      method: "POST",
-      body: JSON.stringify(linkRequest1),
-      headers: requestHeaders1
-    }, (err, response, body) => {
-	    
-      let link = JSON.parse(body);
-	    
-    })
-  }
-}
-}
 
 function whatsapp_posts2(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
 let arrayGroupNumber = [
@@ -1784,47 +1764,29 @@ let arrayGroupNumber = [
 
 
   for (let i = 0; i < arrayGroupNumber.length; i++) {
-    var ggff = urlencodedd(AmazonMsg);
-
-    if(ggff != 'null' && ggff != 'undefined' ){
-//     let requestHeaders1 = {
-//       "Content-Type": "application/json",
-//       "accept": "application/json",
-//       "x-maytapi-key": Amznapi
-//     }
-// let linkRequest1;
-//   linkRequest1 = {
-//     "to_number": arrayGroupNumber[i].id,
-//     "type": "text",
-//     "message": randomMonth + ggff
-//   }
-
-//     request({
-//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
-//       method: "POST",
-//       body: JSON.stringify(linkRequest1),
-//       headers: requestHeaders1
-//     }, (err, response, body) => {
-//       let link = JSON.parse(body);
-//     })
-	    let requestHeaders1 = {
+  var ggff = urlencodedd(AmazonMsg);
+  if(ggff != 'null' && ggff != 'undefined' ){
+    let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json"
+      "accept": "application/json",
     }
-let linkRequest1;
-  linkRequest1 = {
-    "chatId": arrayGroupNumber[i].id,
-    "body": randomMonth + ggff
-  }
-    request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
-      method: "POST",
-      body: JSON.stringify(linkRequest1),
-      headers: requestHeaders1
-    }, (err, response, body) => {
-      let link = JSON.parse(body);
-    })
-  }
+
+     let linkRequest1 = {
+        "number": arrayGroupNumber[i].id,
+        "message": randomMonth + ggff
+      }
+ 
+  request({
+    uri: "https://wpqrcode2.herokuapp.com/send-message",
+    method: "POST",
+    body: JSON.stringify(linkRequest1),
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    console.log('sss',body);
+    console.log('errrr',err);
+    let link = JSON.parse(body);
+  })
+}
 }
 }
 
@@ -1882,53 +1844,34 @@ function whatsapp_posts3(AmazonMsg,AmazonPhoto,Amznapi,Amznphoneid,Amznprodid){
  
   const months = ["🛍 ", "🛒 ", "🔥 ", "💰 ", "🛍️ ", "🤑 ", "🏷️ ", "💳 ", "🎟️ ","📦 ","😍 ","🕯 ","🍂 ","🎌 ","👑 ","🎊 ","🐦 ","⛄ "];
   const randomMonth = months[Math.floor(Math.random() * months.length)];
- 
+
   for (let i = 0; i < arrayGroupNumber.length; i++) {
-    var ggff = urlencodedd(AmazonMsg);
-    if(ggff != 'null' && ggff != 'undefined' ){
-//     let requestHeaders1 = {
-//       "Content-Type": "application/json",
-//       "accept": "application/json",
-//       "x-maytapi-key": Amznapi
-//     }
-// let linkRequest1;
-//   linkRequest1 = {
-//       "to_number": arrayGroupNumber[i].id,
-//       "type": "media",
-//       "message": AmazonPhoto,
-//       "text": ggff
-//     }
-//     request({
-//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
-//       method: "POST",
-//       body: JSON.stringify(linkRequest1),
-//       headers: requestHeaders1
-//     }, (err, response, body) => {
-//       let link = JSON.parse(body);
-//     })
-	    
- let requestHeaders1 = {
-      "Content-Type": "application/json",
-      "accept": "application/json"
+	  var ggff = urlencodedd(AmazonMsg);
+	  if(ggff != 'null' && ggff != 'undefined' ){
+      let requestHeaders1 = {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      }
+
+       let linkRequest1 = {
+          "number": arrayGroupNumber[i].id,
+          "caption": randomMonth + ggff,
+	  "file": AmazonPhoto
+        }
+    
+	  request({
+            uri: "https://wpqrcode1.herokuapp.com/send-media",
+	    method: "POST",
+	    body: JSON.stringify(linkRequest1),
+	    headers: requestHeaders1
+	  }, (err, response, body) => {
+		  console.log('sss',body);
+		  console.log('errrr',err);
+	    let link = JSON.parse(body);
+	  })
+	}
+	}
     }
-let linkRequest1;
-    linkRequest1 = {
-      "chatId": arrayGroupNumber[i].id,
-      "body": AmazonPhoto,
-      "filename":"jkjjjk.jpg",
-      "caption": randomMonth + ggff
-    }
-    request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
-      method: "POST",
-      body: JSON.stringify(linkRequest1),
-      headers: requestHeaders1
-    }, (err, response, body) => {
-      let link = JSON.parse(body);
-    })
-  }
-}
-}
 
 function whatsapp_posts4(AmazonMsg,AmazonPhoto,Amznapi,Amznphoneid,Amznprodid){
 let arrayGroupNumber = [
@@ -1983,54 +1926,33 @@ let arrayGroupNumber = [
   ]
   const months = ["🛍 ", "🛒 ", "🔥 ", "💰 ", "🛍️ ", "🤑 ", "🏷️ ", "💳 ", "🎟️ ","📦 ","😍 ","🕯 ","🍂 ","🎌 ","👑 ","🎊 ","🐦 ","⛄ "];
   const randomMonth = months[Math.floor(Math.random() * months.length)];
+   for (let i = 0; i < arrayGroupNumber.length; i++) {
+	  var ggff = urlencodedd(AmazonMsg);
+	  if(ggff != 'null' && ggff != 'undefined' ){
+      let requestHeaders1 = {
+        "Content-Type": "application/json",
+        "accept": "application/json",
+      }
 
-
-  for (let i = 0; i < arrayGroupNumber.length; i++) {
-    var ggff = urlencodedd(AmazonMsg);
-
-    if(ggff != 'null' && ggff != 'undefined' ){
-//     let requestHeaders1 = {
-//       "Content-Type": "application/json",
-//       "accept": "application/json",
-//       "x-maytapi-key": Amznapi
-//     }
-// let linkRequest1;
-//   linkRequest1 = {
-//       "to_number": arrayGroupNumber[i].id,
-//       "type": "media",
-//       "message": AmazonPhoto,
-//       "text": ggff
-//     }
-//     request({
-//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
-//       method: "POST",
-//       body: JSON.stringify(linkRequest1),
-//       headers: requestHeaders1
-//     }, (err, response, body) => {
-//       let link = JSON.parse(body);
-//     })
-	    let requestHeaders1 = {
-      "Content-Type": "application/json",
-      "accept": "application/json"
+       let linkRequest1 = {
+          "number": arrayGroupNumber[i].id,
+          "caption": randomMonth + ggff,
+	  "file": AmazonPhoto
+        }
+    
+	  request({
+            uri: "https://wpqrcode2.herokuapp.com/send-media",
+	    method: "POST",
+	    body: JSON.stringify(linkRequest1),
+	    headers: requestHeaders1
+	  }, (err, response, body) => {
+		  console.log('sss',body);
+		  console.log('errrr',err);
+	    let link = JSON.parse(body);
+	  })
+	}
+	}
     }
-let linkRequest1;
-    linkRequest1 = {
-      "chatId": arrayGroupNumber[i].id,
-      "body": AmazonPhoto,
-      "filename":"jkjjjjhkk.jpg",
-      "caption": randomMonth + ggff
-    }
-    request({
-      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
-      method: "POST",
-      body: JSON.stringify(linkRequest1),
-      headers: requestHeaders1
-    }, (err, response, body) => {
-      let link = JSON.parse(body);
-    })
-  }
-}
-}
 
 // setInterval( function setup() {
 //   let sqlsss = "SELECT COUNT(*) as cnt FROM post_flags";
