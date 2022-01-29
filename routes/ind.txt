@@ -8,7 +8,7 @@ let request = require("request");
 var config = require('../config/global');
 var connection = require('../config/connection');
 const BitlyClient = require('bitly').BitlyClient;
-const bitly = new BitlyClient('ce7dfdad8652dffabf76cc58940c62fc1711be4a');
+// const bitly = new BitlyClient('d10f8d72343ef254f7251780cbdcc0006fda0bb0');
 var tall = require('tall').default;
 const axios = require('axios');
 var textVersion = require("textversionjs");
@@ -18,7 +18,468 @@ var isLoggedInPolicie = require('../policies/isLoggedIn.js');
 var isUserAuthenticatedPolicy = require('../policies/isUserAuthenticated.js');
 var jwt = require('jsonwebtoken');
 const unshort = require('url-unshorten');
+var moment = require('moment');
 
+
+setInterval( function setup() {
+  let sqlsss = "SELECT * FROM post_flags";
+  connection.query(sqlsss, function (err, tagChangeRandom) {
+    console.log('tagChangeRandom: ', tagChangeRandom[0].tag_switch);
+    var a = moment().utcOffset("+05:30").format("HH:mm");
+    if(a == "02:00"||a == "04:00"||a == "06:00"||a == "08:00"||a == "10:00"||a == "12:00"||a == "14:00"||a == "16:00"||a == "18:00"||a == "20:00"||a == "22:00"||a == "23:59" ){
+      console.log("a");
+      if(tagChangeRandom[0].tag_switch == "1"){
+        tagChangeRandoms(tagChangeRandom);
+      }else{
+        console.log("sssssssss===");
+        bitlyCheckCount(tagChangeRandom[0].current_bitly);
+      }
+    }else{
+      console.log("b");
+    }
+    var current_mili = Date.now();
+    if(tagChangeRandom[0].autopost_flag_tele == 1){
+      if(Number(current_mili) >= Number(tagChangeRandom[0].last_interval_mili)){
+        console.log("22222");
+        teleAutoDemo(tagChangeRandom[0]);
+      }
+    }
+    if (err) {
+      console.log('err: ', err);
+    }
+      })
+}, 19000)
+
+function teleAutoDemo (data) {
+  var sqls = " SELECT * FROM post_telegram3 WHERE post_status = 1 LIMIT 1";
+    connection.query(sqls, function (err, rides2) {
+    if (err) {
+      console.log('err:1 ', err);
+    }else{
+      if(rides2.length > 0){ 
+        autoUpdatePost(rides2[0].post_asin,data);
+        var token_data = Date.now() + (data.delay*60000)
+        values3 =  [token_data]
+        var sql = "UPDATE post_flags set last_interval_mili =? WHERE id = 1";
+        connection.query(sql, values3, function (err, rides) {
+          if (err) {
+            console.log('err:3 ', err);
+          }
+        })
+        var sqls1 = "UPDATE post_telegram3 set post_status = 0 WHERE post_asin ='"+rides2[0].post_asin+"'";
+        connection.query(sqls1, function (err, rides8) {
+          if (err) {
+            console.log('err:3 ', err);
+          }
+        })
+       }
+    }
+  })
+}
+
+function autoUpdatePost(post_link2,ListflagData) {
+  axios('https://www.amazon.in/dp/'+post_link2)
+      .then(response => {
+          var html = response.data;
+          var $ = cheerio.load(html);
+          var matchObj = [];
+          var post_title = $('#productTitle').text().trim();
+          console.log('post_title: ', post_title);
+          var siteheadidsdng = $('.imgTagWrapper').find('img').attr('data-old-hires');
+          var post_regularPrice = $('.priceBlockStrikePriceString').text().trim();
+          console.log('post_regularPrice: ', post_regularPrice);
+          var post_sellPrice = $('#priceblock_ourprice').text().trim();
+          console.log('post_sellPrice: ', post_sellPrice);
+          var savepercent = $('.priceBlockSavingsString').text().replace(/\s\s+/g, '');
+          console.log('savepercent: ', savepercent);
+          var savepercentage = $('.priceBlockSavingsString').text().match(/\(([^)]+)\)/);
+          console.log('savepercentage: ', savepercentage);
+          var siteTitle = $('.priceBlockDealPriceString').text().replace(/\s\s+/g, '');
+          console.log('siteTitle: ', siteTitle);
+          var avilabilty = $('#availability').find('span').text().trim();
+          console.log('avilabilty: ', avilabilty);
+          var post_link = 'https://www.amazon.in/dp/'+post_link2+'?tag=salebaba-21';
+
+          if(siteheadidsdng && post_title && post_link){
+              var chatId = '@onlywomensworld'; // <= replace with yours
+              var html;
+              if(post_regularPrice && post_sellPrice){ 
+               html = '🛍 ' + post_title + '\n\n' +
+                '✅ <b style="background-color:red;">Deal Price : </b> ' + post_sellPrice + '\n' +
+                '❌ <b>M.R.P. : </b> ' + post_regularPrice + '\n\n' +
+                '👉 <a href="' + post_link + '">' + post_link + '</a>\n' ;
+              console.log('html: ', html);
+              if (html) {
+               finalPostList = JSON.parse(ListflagData.amzn_tele_value).telenogroup;
+               for (let l = 0; l < finalPostList.length; l++) {
+                bot = new nodeTelegramBotApi(ListflagData.kudart_token);
+                bot.sendPhoto(finalPostList[l].groupname, siteheadidsdng, {
+                  caption: html,
+                  parse_mode: "HTML",
+                  disable_web_page_preview: true,
+                });
+              }
+            }
+          }
+        }else{
+            console.log("no---");
+          }
+      })
+      .catch(console.error);
+    }
+
+function bitlyCheckCount(bitlyName){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json",
+    "authorization": bitlyName
+  }
+  request({
+    uri: "https://api-ssl.bitly.com/v4/user",
+    method: "GET",
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    let link = JSON.parse(body);
+    bitlyCountNumber(bitlyName,link.default_group_guid);
+  })
+}
+
+router.get('/api/singlepostFlags1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      let requestHeaders1 = {
+        "Content-Type": "application/json",
+        "accept": "application/json"
+      }
+      request({
+        uri: "https://postmanual7.herokuapp.com/singlepostFlags",
+        method: "GET",
+        headers: requestHeaders1
+      }, (err, response, body) => {
+        if(err){
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }else{
+        nextCall(null, JSON.parse(body).data);
+         }
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Single recored sucessfully",
+      data: response
+    });
+  });
+});
+
+function bitlyCountNumber(bitlyName,Tag){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json",
+    "authorization": bitlyName
+  }
+  request({
+    uri: "https://api-ssl.bitly.com/v4/groups/"+Tag+"/shorten_counts",
+    method: "GET",
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    var date = new Date().getMonth()+1;
+    let link = JSON.parse(body);
+    var total = 0;
+      for (var i = 0; i < link.metrics.length; i++) {
+        if(new Date(link.metrics[i].key).getMonth()+1 == date){
+          total = total + link.metrics[i].value;
+        }
+      }
+      if(total > 950){
+       bitlyChangeNew(bitlyName);
+      }
+  })
+}
+
+function bitlyChangeNew(AmazonMsg){
+  values =  [ AmazonMsg]
+  var sqlss = "UPDATE bitly_token set status = 0 WHERE token ='"+AmazonMsg+"'";
+  connection.query(sqlss, values, function (err, rides1) {
+  if (err) {
+    console.log('err: 1', err);
+  }else{
+    var sqls = " SELECT * FROM bitly_token WHERE status = 1 ";
+    connection.query(sqls, function (err, rides2) {
+    if (err) {
+      console.log('err:2 ', err);
+    }else{
+      if(rides2.length > 0){ 
+      bitluUpdateIhd(rides2[0].token);
+      values3 =  [
+        rides2[0].token
+      ]
+      var sql = "UPDATE post_flags set current_bitly =? WHERE id = 1";
+      connection.query(sql, values3, function (err, rides) {
+      if (err) {
+        console.log('err:3 ', err);
+      }
+      })
+    }
+    }
+    })
+  }
+  })
+  }
+
+function bitluUpdateIhd(AmazonMsg){
+  let requestHeaders1 = {
+    "Content-Type": "application/json",
+    "accept": "application/json"
+  }
+  let linkRequest1 = {
+    "org_post_tag": AmazonMsg
+  }
+  request({
+    uri: "https://postmanual7.herokuapp.com/bitlyChangePostAmzn",
+    method: "POST",
+    body: JSON.stringify(linkRequest1),
+    headers: requestHeaders1
+  }, (err, response, body) => {
+    console.log('body: ', body);
+    let link = JSON.parse(body);
+  })
+}
+function tagChangeRandoms(AmazonMsg){
+  let sqlsss = "SELECT tag_name FROM tag_amazon";
+  connection.query(sqlsss, function (err, flagData) {
+    console.log('flagData: ', flagData);
+    if (err) {
+      console.log('err: ', err);
+    }
+  const months = flagData;
+  const randomMonth = months[Math.floor(Math.random() * months.length)];
+  console.log('randomMonth: ', randomMonth.tag_name);
+ 
+  tagChangeRandomsUpdate(randomMonth.tag_name);
+   let requestHeaders1 = {
+      "Content-Type": "application/json",
+      "accept": "application/json"
+    }
+    let linkRequest1 = {
+      "org_post_tag": randomMonth.tag_name
+    }
+    request({
+      uri: "https://postmanual7.herokuapp.com/tagChangePostAmazon",
+      method: "POST",
+      body: JSON.stringify(linkRequest1),
+      headers: requestHeaders1
+    }, (err, response, body) => {
+      console.log('body: ', body);
+      let link = JSON.parse(body);
+    })
+})
+}
+
+function tagChangeRandomsUpdate(AmazonMsg){
+values =  [
+  AmazonMsg
+]
+var sqlss = "UPDATE post_flags set org_post_tag =? WHERE id = 1";
+connection.query(sqlss, values, function (err, rides) {
+  
+if (err) {
+  console.log('err: ', err);
+}
+})
+}
+
+router.get('/api/listTagData', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      var sqlss = " SELECT * FROM tag_amazon";
+      connection.query(sqlss, function (err, rides) {
+        // console.log('rides: ', _.last(rides));
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Single recored sucessfully",
+      data: response
+    });
+  });
+});
+
+router.post('/api/WhatsAppUpdate1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      console.log('req.body: ', req.body);
+
+      values =  [
+                   JSON.stringify(req.body)
+                ]
+      var sqlss = "UPDATE post_flags set array_data =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+});
+
+router.post('/api/bitlyChangePostAmzn1', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      values =  [
+                   req.body.org_post_tag
+                ]
+      var sqlss = "UPDATE post_flags set current_bitly =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+  });
+router.delete('/api/deleteTagData/:id', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      var sqlss = " DELETE FROM tag_amazon WHERE id =" + req.params.id;
+      connection.query(sqlss, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "deleted recored sucessfully",
+      data: response
+    });
+  });
+});
+
+router.post('/api/tagChangePostFlags', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      values =  [
+                   req.body.tag_switch,
+                   req.body.org_post_tag,
+                ]
+      var sqlss = "UPDATE post_flags set tag_switch =? ,org_post_tag =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+});
+
+router.post('/api/addTagData', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      values =   [ [
+                   req.body.sNLink
+                ] ]
+      let sqlss = "INSERT INTO tag_amazon (tag_name) VALUES ?";
+      console.log('sqlss: ', sqlss);
+      connection.query(sqlss, [values], function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "add token sucessfully",
+      data: response
+    });
+  });
+});
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -54,7 +515,7 @@ router.post('/login', function (req, res) {
       };
       // create a token
       admin.auth_token = jwt.sign(jwtData, config.secret, {
-          expiresIn: 86400 * 7 // expires in 24 hours
+          expiresIn: 864000 * 7 // expires in 24 hours
       });
       console.log('admin: ', admin);
       // delete admin.password;
@@ -298,6 +759,38 @@ router.post('/api/addAllInOneData', function (req, res) {
   });
 });
 
+router.post('/api/autoPhotoPostFlags', function (req, res) {
+  async.waterfall([
+    function (nextCall) {
+      values =  [
+                   req.body.autopost_flag_tele,
+                   req.body.delay,
+                ]
+      var sqlss = "UPDATE post_flags set autopost_flag_tele =? ,delay =? WHERE id = 1";
+      connection.query(sqlss, values, function (err, rides) {
+        if (err) {
+          return nextCall({
+            "message": "something went wrong",
+          });
+        }
+        nextCall(null, rides[0]);
+      })
+    }
+  ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status: 200,
+      message: "Edit post flag update sucessfully",
+      data: response
+    });
+  });
+});
+
 router.post('/api/addtokenData', function (req, res) {
   async.waterfall([
     function (nextCall) {
@@ -432,8 +925,11 @@ router.post('/api/editFlipkartFlags', function (req, res) {
       let values;
       let sqlss;
       if(req.body.value == 'dirflipkart'){
-        values =  [ req.body.value, req.body.tag]
-        sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =? WHERE id = 1";
+//         values =  [ req.body.value, req.body.tag]
+//         sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =? WHERE id = 1";
+        values =  [ req.body.value, req.body.tag , "3dac9368527d6192b0ac6b01f3c4460ea2b4cc42"]
+        sqlss = "UPDATE post_flags set flipkart_server =? , flipkart_tag =?,current_bitly  =? WHERE id = 1";
+     
       }else{
         values =  [ req.body.value ]
         sqlss = "UPDATE post_flags set flipkart_server =? WHERE id = 1";
@@ -463,7 +959,7 @@ router.post('/api/editFlipkartFlags', function (req, res) {
 });
 
 function urlencode(str) {
-  return str.replace(/%21/g,'!').replace(/%20/g,' ').replace(/%22/g,'"').replace(/%26/g,'&')
+  return str.replace(/%21/g,'!').replace(/%22/g,'"').replace(/%26/g,'&')
     .replace(/%27/g,'\'').replace(/%3A/g,':').replace(/%2F/g,'/api/').replace(/%3D/g,'=')
     .replace(/%28/g,'(').replace(/%3F/g,'?').replace(/%29/g,')').replace(/%2A/g,'*')
     .replace(/%20/g, '+');
@@ -603,7 +1099,7 @@ function urlencode(str) {
 // })
 
 function conurlencode(str) {
-  return str.replace(/%21/g,'!').replace(/%20/g,' ').replace(/%22/g,'"').replace(/%26/g,'&')
+  return str.replace(/%21/g,'!').replace(/%22/g,'"').replace(/%26/g,'&')
     .replace(/%27/g,'\'').replace(/%3A/g,':').replace(/%2F/g,'/').replace(/%3D/g,'=')
     .replace(/%28/g,'(').replace(/%3F/g,'?').replace(/%29/g,')').replace(/%2A/g,'*')
     .replace(/%20/g, '+');
@@ -626,6 +1122,8 @@ router.post('/api/automation_posts', function (req, res, next) {
                 console.log('err: ', err);
               }
               let ListflagData = flagData[0];
+	      let bitly = new BitlyClient(ListflagData.current_bitly);
+
               let final =[];
               let array = req.body.convertText.split("\n");
                for (let j = 0; j < array.length; j++) {
@@ -645,16 +1143,16 @@ router.post('/api/automation_posts', function (req, res, next) {
                       if(unshortenedUrl.match(/earnkaro/g)){
                         let finalLink =unshortenedUrl.split('dl=');
                          if(conurlencode(finalLink[1]).match(/[?]/g)){
-                          tagnot= conurlencode(finalLink[1]).concat('&tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                          tagnot= conurlencode(finalLink[1]).concat('&tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                         }else{
-                          tagnot= conurlencode(finalLink[1]).concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                          tagnot= conurlencode(finalLink[1]).concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                         }
                       }else if(unshortenedUrl.match(/paisawapas/g)){
                           let finalLink =unshortenedUrl.split('url=');
                            if(conurlencode(finalLink[1]).match(/[?]/g)){
-                            tagnot= conurlencode(finalLink[1]).concat('&tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                            tagnot= conurlencode(finalLink[1]).concat('&tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                           }else{
-                            tagnot= conurlencode(finalLink[1]).concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                            tagnot= conurlencode(finalLink[1]).concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                           }
                     }else{
                     if(unshortenedUrl.match(/[?]/g)){
@@ -683,18 +1181,20 @@ router.post('/api/automation_posts', function (req, res, next) {
                           finalLink[h] = ""
                         }else if(finalLink[h].match(/^keywords/g)){
                           finalLink[h] = ""
+                        }else if(finalLink[h].match(/^k/g)){
+                          finalLink[h] = ""
                         }
                       }
                      
                     let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
-                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+req.body.postTagId+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+ListflagData.org_post_tag+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                      if(tagnotRep.charAt(tagnotRep.length-1) == '&'){
                       tagnot= tagnotRep.slice(0, -1);
                      }else{
                       tagnot= tagnotRep;
                      }
                     }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                     }
                   }
                     if(req.body.bitlyFlag){ 
@@ -703,17 +1203,31 @@ router.post('/api/automation_posts', function (req, res, next) {
                     exampless(tagnot.replace(/&demoyou/g, ''));
                   }
                       console.log('--4');
-                      async function example(dddd) {
-                        let response =await bitly.shorten(dddd);
-                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    async function example(dddd) {
+                      let response =await bitly
+                      .shorten(dddd)
+                      .then(function(result) {
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),result.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                     })
+                      .catch(function(error) {
+                        tinyUrl1(dddd)
+                      });
                     }
+                  async function tinyUrl1(dddd) {  
+                    await request({
+                      uri: "http://tinyurl.com/api-create.php?url="+dddd,
+                      method: "GET",
+                    }, (err, response, body) => {
+                      let responses ={"link":body};
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),responses.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    })
+                  }
                     console.log('--5');
                     function exampless(dddd) {  
                     final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),dddd);
                   }
-                      }else if(unshortenedUrl.match(/flipkart.com/g) || unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/unacademy.com/g) ||unshortenedUrl.match(/coolwinks.com/g) ||unshortenedUrl.match(/orra.co.in/g) ||unshortenedUrl.match(/360totalsecurity.com/g) ||unshortenedUrl.match(/maxbupa.com/g) ||unshortenedUrl.match(/religarehealthinsurance.com/g) ||unshortenedUrl.match(/fnp.com/g) ||unshortenedUrl.match(/healthxp.in/g) ||unshortenedUrl.match(/bigrock.in/g) ||unshortenedUrl.match(/igp.com/g) ||unshortenedUrl.match(/letyshops.com/g) ||unshortenedUrl.match(/spartanpoker.com/g) ||unshortenedUrl.match(/adda52.com/g) ||unshortenedUrl.match(/balaji/g) ||unshortenedUrl.match(/eduonix.com/g) ||unshortenedUrl.match(/paytmmall.com/g) ||unshortenedUrl.match(/testbook.com/g) ||unshortenedUrl.match(/mamaearth.in/g) ||unshortenedUrl.match(/wonderchef.com/g) ||unshortenedUrl.match(/zee5/g) ||unshortenedUrl.match(/beardo.in/g) ||unshortenedUrl.match(/oneplus.in/g) ||unshortenedUrl.match(/1mg.com/g) ||unshortenedUrl.match(/udemy.com/g) ||unshortenedUrl.match(/hometown.in/g) ||unshortenedUrl.match(/magzter.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/ajio.com/g) ||unshortenedUrl.match(/timesprime.com/g)||unshortenedUrl.match(/themomsco.com/g) ||unshortenedUrl.match(/akbartravels.com/g) ||unshortenedUrl.match(/aliexpress.com/g) ||unshortenedUrl.match(/banggood.in/g) ||unshortenedUrl.match(/bata.in/g) ||unshortenedUrl.match(/behrouzbiryani.com/g) ||unshortenedUrl.match(/biba.in/g) ||unshortenedUrl.match(/bigbasket.com/g) ||unshortenedUrl.match(/brandfactoryonline.com/g) ||unshortenedUrl.match(/chumbak.com/g) ||unshortenedUrl.match(/cleartrip.com/g) ||unshortenedUrl.match(/clovia.com/g) ||unshortenedUrl.match(/croma.com/g) ||unshortenedUrl.match(/decathlon.in/g) ||unshortenedUrl.match(/dominos.co.in/g) ||unshortenedUrl.match(/etihad.com/g) ||unshortenedUrl.match(/faasos.io/g) ||unshortenedUrl.match(/fabhotels.com/g) ||unshortenedUrl.match(/firstcry.com/g) ||unshortenedUrl.match(/fossil.com/g) ||unshortenedUrl.match(/harmanaudio.in/g) ||unshortenedUrl.match(/hungama.com/g) ||unshortenedUrl.match(/insider.in/g) ||unshortenedUrl.match(/jockeyindia.com/g) ||unshortenedUrl.match(/kalkifashion.com/g) ||unshortenedUrl.match(/lenskart.com/g) ||unshortenedUrl.match(/lifestylestores.com/g) ||unshortenedUrl.match(/limeroad.com/g) ||unshortenedUrl.match(/manyavar.com/g) ||unshortenedUrl.match(/mcdonaldsindia.com/g) ||unshortenedUrl.match(/medlife.com/g) ||unshortenedUrl.match(/microsoft.com/g) ||unshortenedUrl.match(/mivi.in/g) ||unshortenedUrl.match(/makemytrip.com/g) ||unshortenedUrl.match(/myntra.com/g) ||unshortenedUrl.match(/nnnow.com/g) ||unshortenedUrl.match(/nykaafashion.com/g) ||unshortenedUrl.match(/oyorooms.com/g) ||unshortenedUrl.match(/pepperfry.com/g) ||unshortenedUrl.match(/pizzahut.co.in/g) ||unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/qatarairways.com/g) ||unshortenedUrl.match(/rentomojo.com/g) ||unshortenedUrl.match(/samsung.com/g) ||unshortenedUrl.match(/singaporeair.com/g) ||unshortenedUrl.match(/sochstore.com/g) ||unshortenedUrl.match(/tanishq.co.in/g) ||unshortenedUrl.match(/themancompany.com/g) ||unshortenedUrl.match(/zivame.com/g) ||unshortenedUrl.match(/zoomcar.com/g) ){
+						  }else if(unshortenedUrl.match(/online.citibank.co.in/g) || unshortenedUrl.match(/gearbest.com/g) || unshortenedUrl.match(/nike.com/g) || unshortenedUrl.match(/shop4reebok.com/g) || unshortenedUrl.match(/2gud.com/g) || unshortenedUrl.match(/kotak.com/g) || unshortenedUrl.match(/reliancegeneral.co.in/g) || unshortenedUrl.match(/careinsurance.com/g) || unshortenedUrl.match(/floweraura.com/g) || unshortenedUrl.match(/gasjeans.in/g) || unshortenedUrl.match(/shop.havells.com/g) || unshortenedUrl.match(/sharekhan.com/g) || unshortenedUrl.match(/veromoda.in/g) || unshortenedUrl.match(/hostgator.in/g) || unshortenedUrl.match(/peesafe.com/g) || unshortenedUrl.match(/jackjones.in/g) || unshortenedUrl.match(/gonoise.com/g) || unshortenedUrl.match(/tatacliq.com/g) || unshortenedUrl.match(/lenovo.com/g) || unshortenedUrl.match(/in.toluna.com/g) || unshortenedUrl.match(/vijaysales.com/g) || unshortenedUrl.match(/flipkart.com/g) ||unshortenedUrl.match(/banggood.com/g)|| unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/unacademy.com/g) ||unshortenedUrl.match(/coolwinks.com/g) ||unshortenedUrl.match(/orra.co.in/g) ||unshortenedUrl.match(/360totalsecurity.com/g) ||unshortenedUrl.match(/maxbupa.com/g) ||unshortenedUrl.match(/religarehealthinsurance.com/g) ||unshortenedUrl.match(/fnp.com/g) ||unshortenedUrl.match(/healthxp.in/g) ||unshortenedUrl.match(/bigrock.in/g) ||unshortenedUrl.match(/igp.com/g) ||unshortenedUrl.match(/letyshops.com/g) ||unshortenedUrl.match(/spartanpoker.com/g) ||unshortenedUrl.match(/adda52.com/g) ||unshortenedUrl.match(/balaji/g) ||unshortenedUrl.match(/eduonix.com/g) ||unshortenedUrl.match(/paytmmall.com/g) ||unshortenedUrl.match(/testbook.com/g) ||unshortenedUrl.match(/mamaearth.in/g) ||unshortenedUrl.match(/wonderchef.com/g) ||unshortenedUrl.match(/zee5/g) ||unshortenedUrl.match(/beardo.in/g) ||unshortenedUrl.match(/oneplus.in/g) ||unshortenedUrl.match(/1mg.com/g) ||unshortenedUrl.match(/udemy.com/g) ||unshortenedUrl.match(/hometown.in/g) ||unshortenedUrl.match(/magzter.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/asics.com/g) ||unshortenedUrl.match(/ajio.com/g) ||unshortenedUrl.match(/timesprime.com/g)||unshortenedUrl.match(/themomsco.com/g) ||unshortenedUrl.match(/akbartravels.com/g) ||unshortenedUrl.match(/aliexpress.com/g) ||unshortenedUrl.match(/banggood.in/g) ||unshortenedUrl.match(/bata.in/g) ||unshortenedUrl.match(/behrouzbiryani.com/g) ||unshortenedUrl.match(/biba.in/g) ||unshortenedUrl.match(/bigbasket.com/g) ||unshortenedUrl.match(/brandfactoryonline.com/g) ||unshortenedUrl.match(/chumbak.com/g) ||unshortenedUrl.match(/cleartrip.com/g) ||unshortenedUrl.match(/clovia.com/g) ||unshortenedUrl.match(/croma.com/g) ||unshortenedUrl.match(/decathlon.in/g) ||unshortenedUrl.match(/dominos.co.in/g) ||unshortenedUrl.match(/etihad.com/g) ||unshortenedUrl.match(/faasos.io/g) ||unshortenedUrl.match(/fabhotels.com/g) ||unshortenedUrl.match(/firstcry.com/g) ||unshortenedUrl.match(/fossil.com/g) ||unshortenedUrl.match(/harmanaudio.in/g) ||unshortenedUrl.match(/hungama.com/g) ||unshortenedUrl.match(/insider.in/g) ||unshortenedUrl.match(/jockeyindia.com/g) ||unshortenedUrl.match(/kalkifashion.com/g) ||unshortenedUrl.match(/lenskart.com/g) ||unshortenedUrl.match(/lifestylestores.com/g) ||unshortenedUrl.match(/limeroad.com/g) ||unshortenedUrl.match(/manyavar.com/g) ||unshortenedUrl.match(/mcdonaldsindia.com/g) ||unshortenedUrl.match(/medlife.com/g) ||unshortenedUrl.match(/microsoft.com/g) ||unshortenedUrl.match(/mivi.in/g) ||unshortenedUrl.match(/makemytrip.com/g) ||unshortenedUrl.match(/myntra.com/g) ||unshortenedUrl.match(/nnnow.com/g) ||unshortenedUrl.match(/nykaafashion.com/g) ||unshortenedUrl.match(/oyorooms.com/g) ||unshortenedUrl.match(/pepperfry.com/g) ||unshortenedUrl.match(/pizzahut.co.in/g) ||unshortenedUrl.match(/puma.com/g) ||unshortenedUrl.match(/qatarairways.com/g) ||unshortenedUrl.match(/rentomojo.com/g) ||unshortenedUrl.match(/samsung.com/g) ||unshortenedUrl.match(/singaporeair.com/g) ||unshortenedUrl.match(/sochstore.com/g) ||unshortenedUrl.match(/tanishq.co.in/g) ||unshortenedUrl.match(/themancompany.com/g) ||unshortenedUrl.match(/zivame.com/g) ||unshortenedUrl.match(/zoomcar.com/g) ){
                         console.log("2222222222");
-                   
                       let sqlssnet = "SELECT * FROM diff_net_posts WHERE active_flag ='TRUE'";
                       connection.query(sqlssnet, function (err, flagsData) {
                         if (err) {
@@ -735,7 +1249,7 @@ router.post('/api/automation_posts', function (req, res, next) {
                           }else{
                             quelink = unshortenedUrl;
                            let quelinkRL = unshortenedUrl.replace(/(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)/,'');
-						              if(quelinkRL.match(/^flipkart.com/g) ||quelinkRL.match(/^banggood.com/g) || quelinkRL.match(/^puma.com/g) ||quelinkRL.match(/^unacademy.com/g) ||quelinkRL.match(/^coolwinks.com/g) ||quelinkRL.match(/^orra.co.in/g) ||quelinkRL.match(/^360totalsecurity.com/g) ||quelinkRL.match(/^maxbupa.com/g) ||quelinkRL.match(/^religarehealthinsurance.com/g) ||quelinkRL.match(/^fnp.com/g) ||quelinkRL.match(/^healthxp.in/g) ||quelinkRL.match(/^bigrock.in/g) ||quelinkRL.match(/^igp.com/g) ||quelinkRL.match(/^letyshops.com/g) ||quelinkRL.match(/^spartanpoker.com/g) ||quelinkRL.match(/^adda52.com/g) ||quelinkRL.match(/^balaji/g) ||quelinkRL.match(/^eduonix.com/g) ||quelinkRL.match(/^paytmmall.com/g) ||quelinkRL.match(/^testbook.com/g) ||quelinkRL.match(/^mamaearth.in/g) ||quelinkRL.match(/^wonderchef.com/g) ||quelinkRL.match(/^zee5/g) ||quelinkRL.match(/^beardo.in/g) ||quelinkRL.match(/^oneplus.in/g) ||quelinkRL.match(/^1mg.com/g) ||quelinkRL.match(/^udemy.com/g) ||quelinkRL.match(/^hometown.in/g) ||quelinkRL.match(/^magzter.com/g) ||quelinkRL.match(/^asics.com/g) ||quelinkRL.match(/^asics.com/g) ||quelinkRL.match(/^ajio.com/g) ||quelinkRL.match(/^timesprime.com/g)||quelinkRL.match(/^themomsco.com/g) ||quelinkRL.match(/^akbartravels.com/g) ||quelinkRL.match(/^aliexpress.com/g) ||quelinkRL.match(/^banggood.in/g) ||quelinkRL.match(/^bata.in/g) ||quelinkRL.match(/^behrouzbiryani.com/g) ||quelinkRL.match(/^biba.in/g) ||quelinkRL.match(/^bigbasket.com/g) ||quelinkRL.match(/^brandfactoryonline.com/g) ||quelinkRL.match(/^chumbak.com/g) ||quelinkRL.match(/^cleartrip.com/g) ||quelinkRL.match(/^clovia.com/g) ||quelinkRL.match(/^croma.com/g) ||quelinkRL.match(/^decathlon.in/g) ||quelinkRL.match(/^dominos.co.in/g) ||quelinkRL.match(/^etihad.com/g) ||quelinkRL.match(/^faasos.io/g) ||quelinkRL.match(/^fabhotels.com/g) ||quelinkRL.match(/^firstcry.com/g) ||quelinkRL.match(/^fossil.com/g) ||quelinkRL.match(/^harmanaudio.in/g) ||quelinkRL.match(/^hungama.com/g) ||quelinkRL.match(/^insider.in/g) ||quelinkRL.match(/^jockeyindia.com/g) ||quelinkRL.match(/^kalkifashion.com/g) ||quelinkRL.match(/^lenskart.com/g) ||quelinkRL.match(/^lifestylestores.com/g) ||quelinkRL.match(/^limeroad.com/g) ||quelinkRL.match(/^manyavar.com/g) ||quelinkRL.match(/^mcdonaldsindia.com/g) ||quelinkRL.match(/^medlife.com/g) ||quelinkRL.match(/^microsoft.com/g) ||quelinkRL.match(/^mivi.in/g) ||quelinkRL.match(/^makemytrip.com/g) ||quelinkRL.match(/^myntra.com/g) ||quelinkRL.match(/^nnnow.com/g) ||quelinkRL.match(/^nykaafashion.com/g) ||quelinkRL.match(/^oyorooms.com/g) ||quelinkRL.match(/^pepperfry.com/g) ||quelinkRL.match(/^pizzahut.co.in/g) ||quelinkRL.match(/^puma.com/g) ||quelinkRL.match(/^qatarairways.com/g) ||quelinkRL.match(/^rentomojo.com/g) ||quelinkRL.match(/^samsung.com/g) ||quelinkRL.match(/^singaporeair.com/g) ||quelinkRL.match(/^sochstore.com/g) ||quelinkRL.match(/^tanishq.co.in/g) ||quelinkRL.match(/^themancompany.com/g) ||quelinkRL.match(/^zivame.com/g) ||quelinkRL.match(/^zoomcar.com/g) ){
+						              if(quelinkRL.match(/^online.citibank.co.in/g) || quelinkRL.match(/^gearbest.com/g) || quelinkRL.match(/^nike.com/g) || quelinkRL.match(/^shop4reebok.com/g) || quelinkRL.match(/^2gud.com/g) || quelinkRL.match(/^kotak.com/g) || quelinkRL.match(/^reliancegeneral.co.in/g) || quelinkRL.match(/^careinsurance.com/g) || quelinkRL.match(/^floweraura.com/g) || quelinkRL.match(/^gasjeans.in/g) || quelinkRL.match(/^shop.havells.com/g) || quelinkRL.match(/^sharekhan.com/g) || quelinkRL.match(/^veromoda.in/g) || quelinkRL.match(/^hostgator.in/g) || quelinkRL.match(/^peesafe.com/g) || quelinkRL.match(/^jackjones.in/g) || quelinkRL.match(/^gonoise.com/g) || quelinkRL.match(/^tatacliq.com/g) || quelinkRL.match(/^lenovo.com/g) || quelinkRL.match(/^in.toluna.com/g) || quelinkRL.match(/^vijaysales.com/g) || quelinkRL.match(/^flipkart.com/g) ||quelinkRL.match(/^banggood.com/g) || quelinkRL.match(/^puma.com/g) ||quelinkRL.match(/^unacademy.com/g) ||quelinkRL.match(/^coolwinks.com/g) ||quelinkRL.match(/^orra.co.in/g) ||quelinkRL.match(/^360totalsecurity.com/g) ||quelinkRL.match(/^maxbupa.com/g) ||quelinkRL.match(/^religarehealthinsurance.com/g) ||quelinkRL.match(/^fnp.com/g) ||quelinkRL.match(/^healthxp.in/g) ||quelinkRL.match(/^bigrock.in/g) ||quelinkRL.match(/^igp.com/g) ||quelinkRL.match(/^letyshops.com/g) ||quelinkRL.match(/^spartanpoker.com/g) ||quelinkRL.match(/^adda52.com/g) ||quelinkRL.match(/^balaji/g) ||quelinkRL.match(/^eduonix.com/g) ||quelinkRL.match(/^paytmmall.com/g) ||quelinkRL.match(/^testbook.com/g) ||quelinkRL.match(/^mamaearth.in/g) ||quelinkRL.match(/^wonderchef.com/g) ||quelinkRL.match(/^zee5/g) ||quelinkRL.match(/^beardo.in/g) ||quelinkRL.match(/^oneplus.in/g) ||quelinkRL.match(/^1mg.com/g) ||quelinkRL.match(/^udemy.com/g) ||quelinkRL.match(/^hometown.in/g) ||quelinkRL.match(/^magzter.com/g) ||quelinkRL.match(/^asics.com/g) ||quelinkRL.match(/^asics.com/g) ||quelinkRL.match(/^ajio.com/g) ||quelinkRL.match(/^timesprime.com/g)||quelinkRL.match(/^themomsco.com/g) ||quelinkRL.match(/^akbartravels.com/g) ||quelinkRL.match(/^aliexpress.com/g) ||quelinkRL.match(/^banggood.in/g) ||quelinkRL.match(/^bata.in/g) ||quelinkRL.match(/^behrouzbiryani.com/g) ||quelinkRL.match(/^biba.in/g) ||quelinkRL.match(/^bigbasket.com/g) ||quelinkRL.match(/^brandfactoryonline.com/g) ||quelinkRL.match(/^chumbak.com/g) ||quelinkRL.match(/^cleartrip.com/g) ||quelinkRL.match(/^clovia.com/g) ||quelinkRL.match(/^croma.com/g) ||quelinkRL.match(/^decathlon.in/g) ||quelinkRL.match(/^dominos.co.in/g) ||quelinkRL.match(/^etihad.com/g) ||quelinkRL.match(/^faasos.io/g) ||quelinkRL.match(/^fabhotels.com/g) ||quelinkRL.match(/^firstcry.com/g) ||quelinkRL.match(/^fossil.com/g) ||quelinkRL.match(/^harmanaudio.in/g) ||quelinkRL.match(/^hungama.com/g) ||quelinkRL.match(/^insider.in/g) ||quelinkRL.match(/^jockeyindia.com/g) ||quelinkRL.match(/^kalkifashion.com/g) ||quelinkRL.match(/^lenskart.com/g) ||quelinkRL.match(/^lifestylestores.com/g) ||quelinkRL.match(/^limeroad.com/g) ||quelinkRL.match(/^manyavar.com/g) ||quelinkRL.match(/^mcdonaldsindia.com/g) ||quelinkRL.match(/^medlife.com/g) ||quelinkRL.match(/^microsoft.com/g) ||quelinkRL.match(/^mivi.in/g) ||quelinkRL.match(/^makemytrip.com/g) ||quelinkRL.match(/^myntra.com/g) ||quelinkRL.match(/^nnnow.com/g) ||quelinkRL.match(/^nykaafashion.com/g) ||quelinkRL.match(/^oyorooms.com/g) ||quelinkRL.match(/^pepperfry.com/g) ||quelinkRL.match(/^pizzahut.co.in/g) ||quelinkRL.match(/^puma.com/g) ||quelinkRL.match(/^qatarairways.com/g) ||quelinkRL.match(/^rentomojo.com/g) ||quelinkRL.match(/^samsung.com/g) ||quelinkRL.match(/^singaporeair.com/g) ||quelinkRL.match(/^sochstore.com/g) ||quelinkRL.match(/^tanishq.co.in/g) ||quelinkRL.match(/^themancompany.com/g) ||quelinkRL.match(/^zivame.com/g) ||quelinkRL.match(/^zoomcar.com/g) ){
                             if(quelinkRL.match(/^flipkart.com/g)){
                               tagnot= undefined;
                             }else{
@@ -831,7 +1345,7 @@ router.post('/api/automation_posts', function (req, res, next) {
                           var minu = dateObj.getMinutes();
                           let ren = Math.random().toString(36).substring(7);
                         let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
-                        tagnot= tagnots.concat('&affid='+ListflagData.flipkart_tag).concat('&affExtParam1='+month+day+year+'cl'+hour+minu+ren).concat('&affExtParam2=FK_Kudrat').replace(/(\?&)/g, '?').replace(/&&/g, '&');
+                        tagnot= tagnots.concat('&affid='+ListflagData.flipkart_tag).replace(/(\?&)/g, '?').replace(/&&/g, '&');
                           console.log('tagnot: ', tagnot);
                         }else{
                           var dateObj = new Date();
@@ -841,7 +1355,7 @@ router.post('/api/automation_posts', function (req, res, next) {
                                 var hour = dateObj.getHours();
                                 var minu = dateObj.getMinutes();
                                 let ren = Math.random().toString(36).substring(7);
-                          tagnot= tagnotFlipkart.concat('?affid='+ListflagData.flipkart_tag).concat('&affExtParam1='+month+day+year+'cl'+hour+minu+ren).concat('&affExtParam2=FK_Kudrat');
+                          tagnot= tagnotFlipkart.concat('?affid='+ListflagData.flipkart_tag);
                         }
         
                         if(req.body.bitlyFlag){ 
@@ -900,32 +1414,60 @@ router.post('/api/automation_posts', function (req, res, next) {
                         }
                       }
                     }
-                      async function example1(dddd) {
-                        let response =await bitly.shorten(dddd);
-                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
-                    }
-                    async function example3(dddd) {
-                      let response = await bitly
+                    async function example1(dddd) {
+                      let response =await bitly
                       .shorten(dddd)
                       .then(function(result) {
-                        return result;
-                      })
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),result.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                     })
                       .catch(function(error) {
-                       let jjjh =  unshort(dddd).then(function(unshortenedUrls){ 
-                         let responses;
-                         if(unshortenedUrls.unshorten.match(/www.flipkart.com/g)){
-                         responses ={"link":unshortenedUrls.unshorten.replace(/www.flipkart.com/g, 'dl.flipkart.com/dl')};
-                          }else{
-                         responses ={"link":unshortenedUrls.unshorten};
-                          }
-                         return responses;
-                      })
-                      .catch(function(err){ return err;})
-                      return jjjh;
-  
+                        tinyUrl2(dddd)
                       });
-                        final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link);
-                      }
+                    }
+                  async function tinyUrl2(dddd) {  
+                    await request({
+                      uri: "http://tinyurl.com/api-create.php?url="+dddd,
+                      method: "GET",
+                    }, (err, response, body) => {
+                      let responses ={"link":body};
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),responses.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    })
+                  }
+
+                  async function example3(dddd) {
+                    let response =await bitly
+                    .shorten(dddd)
+                    .then(function(result) {
+                    final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),result.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                   })
+                    .catch(function(error) {
+                      tinyUrl2(dddd)
+                    });
+                  }
+
+
+                    // async function example3(dddd) {
+                    //   let response = await bitly
+                    //   .shorten(dddd)
+                    //   .then(function(result) {
+                    //     return result;
+                    //   })
+                    //   .catch(function(error) {
+                    //    let jjjh =  unshort(dddd).then(function(unshortenedUrls){ 
+                    //      let responses;
+                    //      if(unshortenedUrls.unshorten.match(/www.flipkart.com/g)){
+                    //      responses ={"link":unshortenedUrls.unshorten.replace(/www.flipkart.com/g, 'dl.flipkart.com/dl')};
+                    //       }else{
+                    //      responses ={"link":unshortenedUrls.unshorten};
+                    //       }
+                    //      return responses;
+                    //   })
+                    //   .catch(function(err){ return err;})
+                    //   return jjjh;
+  
+                    //   });
+                    //     final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link);
+                    //   }
                        function example4(dddd) {
                          console.log('dddd: ', dddd);
                          let response =  unshort(dddd).then(function(unshortenedUrls){ 
@@ -983,14 +1525,14 @@ router.post('/api/automation_posts', function (req, res, next) {
                       }
                      
                     let tagnots= finalLink.join('&').replace(/@/g, '').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
-                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+req.body.postTagId+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                    let tagnotRep= tagnots.replace(/[\?]/g,'?tag='+ListflagData.org_post_tag+'&').replace(/&&/g, '&').replace(/([\?][\/])/g, '?').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                      if(tagnotRep.charAt(tagnotRep.length-1) == '&'){
                       tagnot= tagnotRep.slice(0, -1);
                      }else{
                       tagnot= tagnotRep;
                      }
                     }else{
-                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+req.body.postTagId).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
+                     tagnot= unshortenedUrl.replace(/@/g, '').concat('?tag='+ListflagData.org_post_tag).replace(/&&/g, '&').replace(/(\?&)/g, '?').replace(/&&&/g, '&');
                     }
                    example(tagnot.replace(/&demoyou/g, ''));
                    if(req.body.bitlyFlag){ 
@@ -998,10 +1540,25 @@ router.post('/api/automation_posts', function (req, res, next) {
                    }else{
                      example7(tagnot.replace(/&demoyou/g, ''));
                    }
-                       async function example6(dddd) {
-                         let response =await bitly.shorten(dddd);
-                       final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),response.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
-                     }
+                     async function example6(dddd) {
+                      let response =await bitly
+                      .shorten(dddd)
+                      .then(function(result) {
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),result.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                     })
+                      .catch(function(error) {
+                        tinyUrl3(dddd)
+                      });
+                    }
+                  async function tinyUrl3(dddd) {  
+                    await request({
+                      uri: "http://tinyurl.com/api-create.php?url="+dddd,
+                      method: "GET",
+                    }, (err, response, body) => {
+                      let responses ={"link":body};
+                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),responses.link).replace(/.#x...../g,' %E2%99%A8 ').replace(/&/g, 'and').replace(/;/g, ' ');
+                    })
+                  }
                      function example7(dddd) {  
                      final[j] = array[j].replace(urls[0].replace(/@/g, ' ').trim(),dddd);
                    }
@@ -1014,9 +1571,10 @@ router.post('/api/automation_posts', function (req, res, next) {
                       })
                       .catch(function(err){ console.error('AAAW 👻', err)})
                 }else{
+			 final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/Amazon gift voucher/g,'https://amzn.to/3afr8VB - Amazon gift voucher').replace(/FRCP/g,'').replace(/ihddeals.com/g,'bestshoppingdeal.in').replace(/@loot_deal_offers/g,'@asktodealadmin_bot').replace(/@truegrabbers/g,'@asktodealadmin_bot').replace(/@loot_deal_offers/g,'').replace(/@desire_deals/g,'').replace(/@online_offers12/g,'').replace(/@Ihd56bot/g,'@asktodealadmin_bot').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@I/g,'').replace(/@i/g,'').replace(/@S/g,'').replace(/@s/g,'').replace(/@f/g,'').replace(/@F/g,'').replace(/(t.me[\/])/g,'').replace(/IHD/g,'').replace(/t.me/g,'').replace(/@frcp_deals/g,' ').replace(/@IHDBROADCAST/g,' ').replace(/@IHDBroadcast/g,' ').replace(/IHDBROADCAST/g,' ').replace(/@stg003/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g,'').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
                   // final[j] = array[j].replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/#/g, '').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
 //                   final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@frcp_deals/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g, ' ').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
-               final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@I/g,'').replace(/@i/g,'').replace(/@S/g,'').replace(/@s/g,'').replace(/@f/g,'').replace(/@F/g,'').replace(/(t.me[\/])/g,'').replace(/IHD/g,'').replace(/t.me/g,'').replace(/@frcp_deals/g,' ').replace(/@IHDBROADCAST/g,' ').replace(/@IHDBroadcast/g,' ').replace(/IHDBROADCAST/g,' ').replace(/@stg003/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g,'').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
+//                final[j] = array[j].replace(/[?]q=%23/g,'#').replace(/frcp/g,'').replace(/FRCP/g,'').replace(/cashkaro/g,'Deal').replace(/Cashkaro/g,'Deal').replace(/@I/g,'').replace(/@i/g,'').replace(/@S/g,'').replace(/@s/g,'').replace(/@f/g,'').replace(/@F/g,'').replace(/(t.me[\/])/g,'').replace(/IHD/g,'').replace(/t.me/g,'').replace(/@frcp_deals/g,' ').replace(/@IHDBROADCAST/g,' ').replace(/@IHDBroadcast/g,' ').replace(/IHDBROADCAST/g,' ').replace(/@stg003/g,' ').replace(/stg/g,'Best_shopping').replace(/ihd/g,' ').replace(/&#xA0;/g,' ').replace(/.#x...../g,' %E2%99%A8 ').replace(/[[\]]/g,'').replace(/&/g, 'and').replace(/;/g,'').replace(/^\s+|\s+$|\s+(?=\s)/g, '');
                 }
               }
                setTimeout(()=>{
@@ -1126,24 +1684,45 @@ function whatsapp_posts1(AmazonMsg,Amznapi,Amznphoneid,Amznprodid){
   for (let i = 0; i < arrayGroupNumber.length; i++) {
     var ggff = urlencodedd(AmazonMsg);
     if(ggff != 'null' && ggff != 'undefined' ){
-    let requestHeaders1 = {
+//     let requestHeaders1 = {
+//       "Content-Type": "application/json",
+//       "accept": "application/json",
+//       "x-maytapi-key": Amznapi
+//     }
+// let linkRequest1;
+//   linkRequest1 = {
+//     "to_number": arrayGroupNumber[i].id,
+//     "type": "text",
+//     "message": randomMonth + ggff
+//   }
+//     request({
+//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+//       method: "POST",
+//       body: JSON.stringify(linkRequest1),
+//       headers: requestHeaders1
+//     }, (err, response, body) => {
+//       let link = JSON.parse(body);
+//     })
+	    
+   let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json",
-      "x-maytapi-key": Amznapi
+      "accept": "application/json"
     }
+ 	
 let linkRequest1;
   linkRequest1 = {
-    "to_number": arrayGroupNumber[i].id,
-    "type": "text",
-    "message": randomMonth + ggff
+    "chatId": arrayGroupNumber[i].id,
+    "body": randomMonth + ggff
   }
     request({
-      uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
     }, (err, response, body) => {
+	    
       let link = JSON.parse(body);
+	    
     })
   }
 }
@@ -1208,20 +1787,37 @@ let arrayGroupNumber = [
     var ggff = urlencodedd(AmazonMsg);
 
     if(ggff != 'null' && ggff != 'undefined' ){
-    let requestHeaders1 = {
+//     let requestHeaders1 = {
+//       "Content-Type": "application/json",
+//       "accept": "application/json",
+//       "x-maytapi-key": Amznapi
+//     }
+// let linkRequest1;
+//   linkRequest1 = {
+//     "to_number": arrayGroupNumber[i].id,
+//     "type": "text",
+//     "message": randomMonth + ggff
+//   }
+
+//     request({
+//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+//       method: "POST",
+//       body: JSON.stringify(linkRequest1),
+//       headers: requestHeaders1
+//     }, (err, response, body) => {
+//       let link = JSON.parse(body);
+//     })
+	    let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json",
-      "x-maytapi-key": Amznapi
+      "accept": "application/json"
     }
 let linkRequest1;
   linkRequest1 = {
-    "to_number": arrayGroupNumber[i].id,
-    "type": "text",
-    "message": randomMonth + ggff
+    "chatId": arrayGroupNumber[i].id,
+    "body": randomMonth + ggff
   }
-
     request({
-      uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendMessage?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1290,20 +1886,40 @@ function whatsapp_posts3(AmazonMsg,AmazonPhoto,Amznapi,Amznphoneid,Amznprodid){
   for (let i = 0; i < arrayGroupNumber.length; i++) {
     var ggff = urlencodedd(AmazonMsg);
     if(ggff != 'null' && ggff != 'undefined' ){
-    let requestHeaders1 = {
+//     let requestHeaders1 = {
+//       "Content-Type": "application/json",
+//       "accept": "application/json",
+//       "x-maytapi-key": Amznapi
+//     }
+// let linkRequest1;
+//   linkRequest1 = {
+//       "to_number": arrayGroupNumber[i].id,
+//       "type": "media",
+//       "message": AmazonPhoto,
+//       "text": ggff
+//     }
+//     request({
+//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+//       method: "POST",
+//       body: JSON.stringify(linkRequest1),
+//       headers: requestHeaders1
+//     }, (err, response, body) => {
+//       let link = JSON.parse(body);
+//     })
+	    
+ let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json",
-      "x-maytapi-key": Amznapi
+      "accept": "application/json"
     }
 let linkRequest1;
-  linkRequest1 = {
-      "to_number": arrayGroupNumber[i].id,
-      "type": "media",
-      "message": AmazonPhoto,
-      "text": ggff
+    linkRequest1 = {
+      "chatId": arrayGroupNumber[i].id,
+      "body": AmazonPhoto,
+      "filename":"jkjjjk.jpg",
+      "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1373,20 +1989,39 @@ let arrayGroupNumber = [
     var ggff = urlencodedd(AmazonMsg);
 
     if(ggff != 'null' && ggff != 'undefined' ){
-    let requestHeaders1 = {
+//     let requestHeaders1 = {
+//       "Content-Type": "application/json",
+//       "accept": "application/json",
+//       "x-maytapi-key": Amznapi
+//     }
+// let linkRequest1;
+//   linkRequest1 = {
+//       "to_number": arrayGroupNumber[i].id,
+//       "type": "media",
+//       "message": AmazonPhoto,
+//       "text": ggff
+//     }
+//     request({
+//       uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+//       method: "POST",
+//       body: JSON.stringify(linkRequest1),
+//       headers: requestHeaders1
+//     }, (err, response, body) => {
+//       let link = JSON.parse(body);
+//     })
+	    let requestHeaders1 = {
       "Content-Type": "application/json",
-      "accept": "application/json",
-      "x-maytapi-key": Amznapi
+      "accept": "application/json"
     }
 let linkRequest1;
-  linkRequest1 = {
-      "to_number": arrayGroupNumber[i].id,
-      "type": "media",
-      "message": AmazonPhoto,
-      "text": ggff
+    linkRequest1 = {
+      "chatId": arrayGroupNumber[i].id,
+      "body": AmazonPhoto,
+      "filename":"jkjjjjhkk.jpg",
+      "caption": randomMonth + ggff
     }
     request({
-      uri: "https://api.maytapi.com/api/" + Amznprodid + "/" + Amznphoneid + "/sendMessage",
+      uri: "https://api.chat-api.com/"+Amznphoneid+"/sendFile?token="+Amznprodid,
       method: "POST",
       body: JSON.stringify(linkRequest1),
       headers: requestHeaders1
@@ -1397,15 +2032,15 @@ let linkRequest1;
 }
 }
 
-setInterval( function setup() {
-  let sqlsss = "SELECT COUNT(*) as cnt FROM post_flags";
-  connection.query(sqlsss, function (err, flagData) {
-    console.log('flagData: ', flagData[0].cnt);
-    if (err) {
-      console.log('err: ', err);
-    }
-      })
-}, 19000)
+// setInterval( function setup() {
+//   let sqlsss = "SELECT COUNT(*) as cnt FROM post_flags";
+//   connection.query(sqlsss, function (err, flagData) {
+//     console.log('flagData: ', flagData[0].cnt);
+//     if (err) {
+//       console.log('err: ', err);
+//     }
+//       })
+// }, 19000)
 
 
 
@@ -1464,6 +2099,136 @@ router.post('/api/unconvert_posts', function (req, res, next) {
     });
   })
 })
+
+router.post('/api/unconvert_audio_posts', function (req, res, next) {
+  async.waterfall([
+    function (nextCall) {
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
+              }
+              let ListflagData = flagData[0];
+                 let finalAmazon = req.body.convertText;
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                let finalIdList = JSON.parse(ListflagData.array_data).user;
+                   if(req.body.postImg != ""){
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoAudioPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                     whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId); 
+                 }
+                    }else{
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                    whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
+                   }
+                }
+              //   if(req.body.postImg != ""){
+              //   teleAutoAudioPostChannel(finalAmazon,req.body.postImg,'@savekaro01',ListflagData.kudart_token);
+              // }else{
+              //       teleAutoname(finalAmazon,'@savekaro01',ListflagData.kudart_token);
+              //      }
+              nextCall(null, urlencodedd(finalAmazon));
+              })
+            }
+    ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status_code: 200,
+      message: "telegrame post create sucessfully",
+      data: response
+    });
+  })
+})
+
+router.post('/api/unconvert_video_posts', function (req, res, next) {
+  async.waterfall([
+    function (nextCall) {
+            let sqlsss = "SELECT * FROM post_flags";
+            connection.query(sqlsss, function (err, flagData) {
+              if (err) {
+                console.log('err: ', err);
+              }
+              let ListflagData = flagData[0];
+                 let finalAmazon = req.body.convertText;
+                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                let finalIdList = JSON.parse(ListflagData.array_data).user;
+                   if(req.body.postImg != ""){
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoVideoPostChannel(finalAmazon,req.body.postImg,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts3(finalAmazon,req.body.postImg,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                     whatsapp_posts4(finalAmazon,req.body.postImg,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId); 
+                 }
+                    }else{
+                 if(req.body.teleSendFlag){ 
+                 for (let l = 0; l < finalPostList.length; l++) {
+                    teleAutoname(finalAmazon,finalPostList[l].groupname,ListflagData.kudart_token);
+                 }
+                }
+                 if(req.body.WattsSendFlag){ 
+                    whatsapp_posts1(finalAmazon,finalIdList[0].apiKey,finalIdList[0].phoneId,finalIdList[0].productId);
+                    whatsapp_posts2(finalAmazon,finalIdList[1].apiKey,finalIdList[1].phoneId,finalIdList[1].productId);
+                   }
+                }
+              //   if(req.body.postImg != ""){
+              //   teleAutoVideoPostChannel(finalAmazon,req.body.postImg,'@savekaro01',ListflagData.kudart_token);
+              // }else{
+              //       teleAutoname(finalAmazon,'@savekaro01',ListflagData.kudart_token);
+              //      }
+              nextCall(null, urlencodedd(finalAmazon));
+              })
+            }
+    ], function (err, response) {
+    if (err) {
+      return res.send({
+        status: err.code ? err.code : 400,
+        message: (err && err.msg) || "someyhing went wrong"
+      });
+    }
+    return res.send({
+      status_code: 200,
+      message: "telegrame post create sucessfully",
+      data: response
+    });
+  })
+})
+
+function teleAutoVideoPostChannel(finalAmazon,img,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendVideo(chatId, img, {
+    caption: finalAmazon,
+    disable_web_page_preview: true
+  });
+}
+
+function teleAutoAudioPostChannel(finalAmazon,img,chanelName,token){
+  var chatId = chanelName; // <= replace with yours
+  bot = new nodeTelegramBotApi(token);
+  bot.sendAudio(chatId, img, {
+    caption: finalAmazon,
+    disable_web_page_preview: true
+  });
+}
 
 function teleAutoPostChannel(finalAmazon,img,chanelName,token){
   var chatId = chanelName; // <= replace with yours
