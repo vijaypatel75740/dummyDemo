@@ -8,19 +8,19 @@ var mysql  = require('mysql');
 //   database:'PM04XO3vrq'
 // };
 
-// var db_config = {
-//     host     : 'sql6.freesqldatabase.com',
-//     user     : 'sql6460966',
-//     password : 'PfXIrBFDkD',
-//     database:'sql6460966'
-//   };
-
 var db_config = {
-  host     : 'sql6.freesqldatabase.com',
-  user     : 'sql6465893',
-  password : 'rNDuI2JqSk',
-  database:'sql6465893'
+  host     : 'top9deals.com',
+  user     : 'top9ddyk_apadmin',
+  password : 'S@!E6a6a',
+  database:'top9ddyk_app_panel'
 };
+
+// var db_config = {
+//   host     : 'sql6.freesqldatabase.com',
+//   user     : 'sql6465893',
+//   password : 'rNDuI2JqSk',
+//   database:'sql6465893'
+// };
 
 // var db_config = {
 //   host     : 'sql6.freesqldatabase.com',
