@@ -1582,7 +1582,13 @@ router.post('/api/automation_posts', function (req, res, next) {
                  console.log('finalAmazon000000: ', finalAmazon);
               if(finalAmazon.match(/(((ftp|https?):\/\/)[\-\w@:%_\+.~#?,&\/\/=]+)/g)){
                 console.log('finalAmazon: ', finalAmazon);
-                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                //  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 let finalPostList;
+                 if(finalAmazon.match(/amzn.to/g) || finalAmazon.match(/amazon.in/g)){
+                  finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 }else{
+                  finalPostList = JSON.parse(ListflagData.manual_tele_values).telenogroup;
+                 }
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
                    if(req.body.postImg != ""){
                  if(req.body.teleSendFlag){ 
@@ -1976,7 +1982,13 @@ router.post('/api/unconvert_posts', function (req, res, next) {
               }
               let ListflagData = flagData[0];
                  let finalAmazon = req.body.convertText;
-                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                //  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 let finalPostList;
+                 if(finalAmazon.match(/amzn.to/g) || finalAmazon.match(/amazon.in/g)){
+                  finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 }else{
+                  finalPostList = JSON.parse(ListflagData.manual_tele_values).telenogroup;
+                 }
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
                    if(req.body.postImg != ""){
                  if(req.body.teleSendFlag){ 
@@ -2032,7 +2044,13 @@ router.post('/api/unconvert_audio_posts', function (req, res, next) {
               }
               let ListflagData = flagData[0];
                  let finalAmazon = req.body.convertText;
-                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                //  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                let finalPostList;
+                 if(finalAmazon.match(/amzn.to/g) || finalAmazon.match(/amazon.in/g)){
+                    finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                   }else{
+                    finalPostList = JSON.parse(ListflagData.manual_tele_values).telenogroup;
+                   }
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
                    if(req.body.postImg != ""){
                  if(req.body.teleSendFlag){ 
@@ -2088,7 +2106,13 @@ router.post('/api/unconvert_video_posts', function (req, res, next) {
               }
               let ListflagData = flagData[0];
                  let finalAmazon = req.body.convertText;
-                 let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                //  let finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                 let finalPostList;
+                 if(finalAmazon.match(/amzn.to/g) || finalAmazon.match(/amazon.in/g)){
+                    finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+                   }else{
+                    finalPostList = JSON.parse(ListflagData.manual_tele_values).telenogroup;
+                   }
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
                    if(req.body.postImg != ""){
                  if(req.body.teleSendFlag){ 
