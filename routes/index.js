@@ -1986,8 +1986,10 @@ router.post('/api/unconvert_posts', function (req, res, next) {
                  let finalPostList;
                  if(finalAmazon.match(/amzn.to/g) || finalAmazon.match(/amazon.in/g)){
                   finalPostList = JSON.parse(ListflagData.all_tele_group).telenogroup;
+			 console.log("fisrt----" , finalPostList);
                  }else{
                   finalPostList = JSON.parse(ListflagData.manual_tele_values).telenogroup;
+			 console.log("second---" , finalPostList);
                  }
                 let finalIdList = JSON.parse(ListflagData.array_data).user;
                    if(req.body.postImg != ""){
